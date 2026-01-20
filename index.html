@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Radial Menu Creator - AutoHotkey v2.0</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            rel="stylesheet">
+        <link href="style.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="bg-pattern"></div>
+        <div class="bg-grid"></div>
+
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Radial Menu Creator</h1>
+                        <span>AutoHotkey v2.0</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-ghost" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn-ghost" id="resetBtn">
+                        <i class="fas fa-undo"></i>
+                        <span>Resetar</span>
+                    </button>
+                    <button class="btn btn-primary" id="generateBtn">
+                        <i class="fas fa-download"></i>
+                        <span>Gerar Script</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="left-panel">
+                <!-- Radial Preview Card -->
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-eye"></i>
+                            Pré-visualização
+                        </h3>
+                        <div class="menu-path" id="menuPath">
+                            <span class="menu-path-item current"
+                                data-menu="main">Menu Principal</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="preview-container">
+                            <div class="radial-preview" id="radialPreview">
+                                <div class="radial-center">
+                                    <i class="fas fa-mouse"></i>
+                                </div>
+                                <div class="radial-sector sector-top"
+                                    data-direction="top" id="sectorTop">
+                                    CIMA
+                                </div>
+                                <div class="radial-sector sector-right"
+                                    data-direction="right" id="sectorRight">
+                                    DIREITA
+                                </div>
+                                <div class="radial-sector sector-bottom"
+                                    data-direction="bottom" id="sectorBottom">
+                                    BAIXO
+                                </div>
+                                <div class="radial-sector sector-left"
+                                    data-direction="left" id="sectorLeft">
+                                    ESQUERDA
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Card -->
+                <div class="card animate-in"
+                    style="margin-top: 1.5rem; animation-delay: 0.1s;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-cog"></i>
+                            Configurações Gerais
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="tabs" id="settingsTabs">
+                            <button class="tab active"
+                                data-tab="trigger">Gatilho</button>
+                            <button class="tab"
+                                data-tab="visual">Visual</button>
+                            <button class="tab"
+                                data-tab="animation">Animação</button>
+                        </div>
+
+                        <div class="tab-content active" id="tabTrigger"
+                            style="margin-top: 1.25rem;">
+                            <div class="form-group">
+                                <label class="form-label">Botão do Mouse</label>
+                                <div
+                                    style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <label class="trigger-option selected"
+                                        data-value="MButton">
+                                        <input type="radio" name="trigger"
+                                            value="MButton" checked>
+                                        <div class="trigger-radio"></div>
+                                        <div class="trigger-info">
+                                            <h4>Botão do Meio (Scroll)</h4>
+                                            <p>Clique no scroll do mouse para
+                                                abrir</p>
+                                        </div>
+                                    </label>
+                                    <label class="trigger-option"
+                                        data-value="XButton1">
+                                        <input type="radio" name="trigger"
+                                            value="XButton1">
+                                        <div class="trigger-radio"></div>
+                                        <div class="trigger-info">
+                                            <h4>Botão Lateral 1 (Voltar)</h4>
+                                            <p>Botão lateral traseiro do
+                                                mouse</p>
+                                        </div>
+                                    </label>
+                                    <label class="trigger-option"
+                                        data-value="XButton2">
+                                        <input type="radio" name="trigger"
+                                            value="XButton2">
+                                        <div class="trigger-radio"></div>
+                                        <div class="trigger-info">
+                                            <h4>Botão Lateral 2 (Avançar)</h4>
+                                            <p>Botão lateral frontal do
+                                                mouse</p>
+                                        </div>
+                                    </label>
+                                    <label class="trigger-option"
+                                        data-value="RButton">
+                                        <input type="radio" name="trigger"
+                                            value="RButton">
+                                        <div class="trigger-radio"></div>
+                                        <div class="trigger-info">
+                                            <h4>Botão Direito</h4>
+                                            <p>Clique direito para abrir o
+                                                menu</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="tabVisual"
+                            style="margin-top: 1.25rem;">
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Raio do Menu
+                                        (px)</label>
+                                    <input type="number" class="form-input"
+                                        id="menuRadius" value="110" min="80"
+                                        max="200">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Zona Morta
+                                        (px)</label>
+                                    <input type="number" class="form-input"
+                                        id="deadzone" value="30" min="10"
+                                        max="60">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Opacidade
+                                        (%)</label>
+                                    <input type="number" class="form-input"
+                                        id="menuOpacity" value="92" min="50"
+                                        max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cantos
+                                        (px)</label>
+                                    <input type="number" class="form-input"
+                                        id="cornerRadius" value="16" min="0"
+                                        max="30">
+                                </div>
+                            </div>
+                            <div class="settings-grid"
+                                style="margin-top: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Cor de
+                                        Fundo</label>
+                                    <div class="color-input-wrapper">
+                                        <div class="color-preview">
+                                            <input type="color" id="bgColor"
+                                                value="#1E1E1E">
+                                        </div>
+                                        <input type="text" class="form-input"
+                                            id="bgColorText" value="1E1E1E"
+                                            style="flex: 1; font-family: 'JetBrains Mono', monospace;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cor dos
+                                        Setores</label>
+                                    <div class="color-input-wrapper">
+                                        <div class="color-preview">
+                                            <input type="color" id="itemColor"
+                                                value="#333333">
+                                        </div>
+                                        <input type="text" class="form-input"
+                                            id="itemColorText" value="333333"
+                                            style="flex: 1; font-family: 'JetBrains Mono', monospace;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-grid"
+                                style="margin-top: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Cor de
+                                        Destaque</label>
+                                    <div class="color-input-wrapper">
+                                        <div class="color-preview">
+                                            <input type="color" id="accentColor"
+                                                value="#1F6FEB">
+                                        </div>
+                                        <input type="text" class="form-input"
+                                            id="accentColorText" value="1F6FEB"
+                                            style="flex: 1; font-family: 'JetBrains Mono', monospace;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cor do
+                                        Texto</label>
+                                    <div class="color-input-wrapper">
+                                        <div class="color-preview">
+                                            <input type="color" id="textColor"
+                                                value="#FFFFFF">
+                                        </div>
+                                        <input type="text" class="form-input"
+                                            id="textColorText" value="FFFFFF"
+                                            style="flex: 1; font-family: 'JetBrains Mono', monospace;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Toggle para usar cor de destaque -->
+                            <div class="submenu-toggle" id="useHighlightToggle"
+                                style="margin-top: 1rem;">
+                                <div class="submenu-toggle-info">
+                                    <div class="submenu-toggle-icon">
+                                        <i class="fas fa-paint-brush"></i>
+                                    </div>
+                                    <div class="submenu-toggle-text">
+                                        <h4>Usar Cor de Destaque</h4>
+                                        <span>Muda a cor do setor quando o mouse
+                                            passa</span>
+                                    </div>
+                                </div>
+                                <div class="toggle-switch active"
+                                    id="highlightToggleSwitch"></div>
+                            </div>
+
+                            <!-- Pré-visualização do Visual -->
+                            <div style="margin-top: 1.5rem;">
+                                <label class="form-label"
+                                    style="margin-bottom: 0.75rem;">
+                                    <i class="fas fa-eye"></i> Pré-visualização
+                                    do Visual
+                                </label>
+                                <div id="visualPreviewContainer" style="
+                                padding: 1.5rem;
+                                border-radius: 12px;
+                                border: 1px solid var(--border);
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                position: relative;
+                                overflow: hidden;
+                                min-height: 220px;
+                            ">
+                                    <div id="visualPreview" style="
+                                    position: relative;
+                                    width: 180px;
+                                    height: 180px;
+                                    border-radius: 16px;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                ">
+                                        <!-- Centro -->
+                                        <div id="previewCenter" style="
+                                        position: absolute;
+                                        width: 50px;
+                                        height: 50px;
+                                        border-radius: 50%;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 1.25rem;
+                                        z-index: 10;
+                                    ">
+                                            <i class="fas fa-mouse"></i>
+                                        </div>
+                                        <!-- Setores -->
+                                        <div id="previewTop"
+                                            class="preview-sector"
+                                            data-sector="top" style="
+                                        position: absolute;
+                                        top: 8px;
+                                        left: 50%;
+                                        transform: translateX(-50%);
+                                        width: 70px;
+                                        height: 26px;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 0.6rem;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                    ">CIMA</div>
+                                        <div id="previewRight"
+                                            class="preview-sector"
+                                            data-sector="right" style="
+                                        position: absolute;
+                                        right: 8px;
+                                        top: 50%;
+                                        transform: translateY(-50%);
+                                        width: 70px;
+                                        height: 26px;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 0.6rem;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                    ">DIR</div>
+                                        <div id="previewBottom"
+                                            class="preview-sector"
+                                            data-sector="bottom" style="
+                                        position: absolute;
+                                        bottom: 8px;
+                                        left: 50%;
+                                        transform: translateX(-50%);
+                                        width: 70px;
+                                        height: 26px;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 0.6rem;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                    ">BAIXO</div>
+                                        <div id="previewLeft"
+                                            class="preview-sector"
+                                            data-sector="left" style="
+                                        position: absolute;
+                                        left: 8px;
+                                        top: 50%;
+                                        transform: translateY(-50%);
+                                        width: 70px;
+                                        height: 26px;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 0.6rem;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s ease;
+                                    ">ESQ</div>
+                                    </div>
+                                </div>
+                                <p
+                                    style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">
+                                    <i class="fas fa-info-circle"></i> Passe o
+                                    mouse sobre os setores para ver o efeito de
+                                    destaque
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="tabAnimation"
+                            style="margin-top: 1.25rem;">
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Fade In
+                                        (ms)</label>
+                                    <input type="number" class="form-input"
+                                        id="fadeIn" value="120" min="0"
+                                        max="500">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Fade Out
+                                        (ms)</label>
+                                    <input type="number" class="form-input"
+                                        id="fadeOut" value="120" min="0"
+                                        max="500">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Passos do
+                                        Fade</label>
+                                    <input type="number" class="form-input"
+                                        id="fadeSteps" value="12" min="1"
+                                        max="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Escala
+                                        Ativo</label>
+                                    <input type="number" class="form-input"
+                                        id="scaleActive" value="1.12" min="1"
+                                        max="1.5" step="0.01">
+                                </div>
+                            </div>
+                            <div class="form-group"
+                                style="margin-top: 1.25rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 10px; border: 1px solid var(--border);">
+                                <label class="form-label"
+                                    style="margin-bottom: 0.75rem;">
+                                    <i class="fas fa-clock"></i> Tempo para
+                                    Abrir Submenu
+                                </label>
+                                <div
+                                    style="display: flex; align-items: center; gap: 1rem;">
+                                    <input type="range"
+                                        id="submenuHoldTimeRange" value="1500"
+                                        min="500" max="5000" step="100"
+                                        style="flex: 1; accent-color: var(--accent); height: 6px; cursor: pointer;">
+                                    <div
+                                        style="display: flex; align-items: center; gap: 0.25rem; min-width: 80px;">
+                                        <input type="number" class="form-input"
+                                            id="submenuHoldTime" value="1500"
+                                            min="500" max="5000" step="100"
+                                            style="width: 70px; padding: 0.5rem; text-align: center; font-family: 'JetBrains Mono', monospace;">
+                                        <span
+                                            style="color: var(--text-muted); font-size: 0.75rem;">ms</span>
+                                    </div>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                                    <span
+                                        style="font-size: 0.65rem; color: var(--text-muted);">0.5s
+                                        (rápido)</span>
+                                    <span
+                                        style="font-size: 0.65rem; color: var(--accent); font-weight: 500;"
+                                        id="holdTimeDisplay">1.5 segundos</span>
+                                    <span
+                                        style="font-size: 0.65rem; color: var(--text-muted);">5s
+                                        (lento)</span>
+                                </div>
+                                <p
+                                    style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.4;">
+                                    <i class="fas fa-info-circle"></i> Mantenha
+                                    o mouse sobre um setor de submenu por este
+                                    tempo para abri-lo automaticamente (sem
+                                    soltar o botão)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel editor-panel">
+                <!-- Sector Editor -->
+                <div class="card animate-in" style="animation-delay: 0.15s;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-edit"></i>
+                            <span id="editorTitle">Editar Setor</span>
+                        </h3>
+                    </div>
+                    <div class="card-body" id="sectorEditor">
+                        <div class="empty-state">
+                            <i class="fas fa-hand-pointer"></i>
+                            <p>Clique em um setor no menu para editar</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submenus List -->
+                <div class="card animate-in" style="animation-delay: 0.2s;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-layer-group"></i>
+                            Submenus
+                        </h3>
+                        <button class="btn btn-ghost" id="addSubmenuBtn"
+                            style="padding: 0.375rem 0.75rem;">
+                            <i class="fas fa-plus"></i>
+                            Novo
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="menu-list" id="submenuList">
+                            <!-- Submenus will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Preview -->
+                <div class="card animate-in" style="animation-delay: 0.25s;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-code"></i>
+                            Pré-visualização do Código
+                        </h3>
+                        <button class="btn btn-ghost" id="copyCodeBtn"
+                            style="padding: 0.375rem 0.75rem;">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="code-preview">
+                            <div class="code-header">
+                                <div class="code-dots">
+                                    <div class="code-dot red"></div>
+                                    <div class="code-dot yellow"></div>
+                                    <div class="code-dot green"></div>
+                                </div>
+                                <span
+                                    class="code-filename">radial-menu.ahk</span>
+                            </div>
+                            <div class="code-body" id="codePreview">
+                                <span class="comment">; Configure o menu para
+                                    ver o código</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Add Submenu Modal -->
+        <div class="modal-overlay" id="submenuModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="submenuModalTitle">Novo
+                        Submenu</h3>
+                    <button class="modal-close" id="closeSubmenuModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Nome do Submenu</label>
+                        <input type="text" class="form-input" id="submenuName"
+                            placeholder="Ex: Dev Tools">
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">ID (usado no código)</label>
+                        <input type="text" class="form-input" id="submenuId"
+                            placeholder="Ex: dev"
+                            style="font-family: 'JetBrains Mono', monospace;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost"
+                        id="cancelSubmenu">Cancelar</button>
+                    <button class="btn btn-primary"
+                        id="saveSubmenu">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset Confirm Modal -->
+        <div class="modal-overlay" id="resetModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Confirmar Reset</h3>
+                    <button class="modal-close" id="closeResetModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        Tem certeza que deseja resetar todas as configurações?
+                        Isso irá apagar todos os atalhos e submenus
+                        configurados.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost"
+                        id="cancelReset">Cancelar</button>
+                    <button class="btn btn-primary"
+                        style="background: var(--danger);"
+                        id="confirmReset">Resetar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-container" id="toastContainer"></div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
