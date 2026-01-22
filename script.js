@@ -120,7 +120,18 @@ const elements = {
     cancelReset: document.getElementById('cancelReset'),
     confirmReset: document.getElementById('confirmReset'),
 
-    toastContainer: document.getElementById('toastContainer')
+    toastContainer: document.getElementById('toastContainer'),
+
+    // Capture Modal
+    captureOverlay: document.getElementById('captureOverlay'),
+    captureIcon: document.getElementById('captureIcon'),
+    captureTitle: document.getElementById('captureTitle'),
+    captureSubtitle: document.getElementById('captureSubtitle'),
+    capturedKeys: document.getElementById('capturedKeys'),
+    cancelCapture: document.getElementById('cancelCapture'),
+    confirmCapture: document.getElementById('confirmCapture'),
+    mapTriggerBtn: document.getElementById('mapTriggerBtn'),
+    currentTriggerDisplay: document.getElementById('currentTriggerDisplay')
 };
 
 // =============================================
@@ -197,8 +208,278 @@ document.querySelectorAll('.trigger-option').forEach(option => {
         option.classList.add('selected');
         option.querySelector('input').checked = true;
         config.trigger = option.dataset.value;
+        elements.currentTriggerDisplay.textContent = option.dataset.value;
         updateCodePreview();
     });
+});
+
+// =============================================
+// Key Capture System
+// =============================================
+let captureMode = null; // 'trigger' or 'hotkey'
+let capturedKeyData = { modifiers: [], key: null, ahkCode: '' };
+let captureCallback = null;
+
+// Key mapping for AHK
+const keyToAHK = {
+    // Mouse buttons
+    'Mouse0': 'LButton',
+    'Mouse1': 'RButton',
+    'Mouse2': 'MButton',
+    'Mouse3': 'XButton1',
+    'Mouse4': 'XButton2',
+    // Modifiers
+    'Control': '^',
+    'Shift': '+',
+    'Alt': '!',
+    'Meta': '#',
+    // Special keys
+    'ArrowLeft': '{Left}',
+    'ArrowRight': '{Right}',
+    'ArrowUp': '{Up}',
+    'ArrowDown': '{Down}',
+    'Enter': '{Enter}',
+    'Tab': '{Tab}',
+    'Escape': '{Escape}',
+    'Backspace': '{Backspace}',
+    'Delete': '{Delete}',
+    'Home': '{Home}',
+    'End': '{End}',
+    'PageUp': '{PgUp}',
+    'PageDown': '{PgDn}',
+    'Insert': '{Insert}',
+    'PrintScreen': '{PrintScreen}',
+    'Pause': '{Pause}',
+    'ScrollLock': '{ScrollLock}',
+    'NumLock': '{NumLock}',
+    'CapsLock': '{CapsLock}',
+    'F1': '{F1}', 'F2': '{F2}', 'F3': '{F3}', 'F4': '{F4}',
+    'F5': '{F5}', 'F6': '{F6}', 'F7': '{F7}', 'F8': '{F8}',
+    'F9': '{F9}', 'F10': '{F10}', 'F11': '{F11}', 'F12': '{F12}',
+    ' ': '{Space}',
+};
+
+// Readable key names
+const keyDisplayName = {
+    'ArrowLeft': '←',
+    'ArrowRight': '→',
+    'ArrowUp': '↑',
+    'ArrowDown': '↓',
+    'Control': 'Ctrl',
+    'Meta': 'Win',
+    ' ': 'Space',
+    'Escape': 'Esc',
+    'Backspace': '⌫',
+    'Delete': 'Del',
+    'PageUp': 'PgUp',
+    'PageDown': 'PgDn',
+    'PrintScreen': 'PrtSc',
+};
+
+function getKeyDisplayName(key) {
+    return keyDisplayName[key] || key;
+}
+
+function getAHKKey(key, isMouseButton = false) {
+    if (isMouseButton) {
+        return keyToAHK['Mouse' + key] || 'MButton';
+    }
+    if (keyToAHK[key]) return keyToAHK[key];
+    // For regular letters and numbers
+    if (key.length === 1) return key.toLowerCase();
+    return `{${key}}`;
+}
+
+function openCaptureModal(mode, callback) {
+    captureMode = mode;
+    captureCallback = callback;
+    capturedKeyData = { modifiers: [], key: null, ahkCode: '' };
+
+    // Update modal text based on mode
+    if (mode === 'trigger') {
+        elements.captureIcon.className = 'fas fa-mouse';
+        elements.captureTitle.textContent = 'Mapear Gatilho';
+        elements.captureSubtitle.textContent = 'Pressione uma tecla ou botão do mouse para usar como gatilho';
+    } else {
+        elements.captureIcon.className = 'fas fa-keyboard';
+        elements.captureTitle.textContent = 'Capturar Atalho';
+        elements.captureSubtitle.textContent = 'Pressione a combinação de teclas desejada';
+    }
+
+    elements.capturedKeys.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Aguardando...</span>';
+    elements.confirmCapture.disabled = true;
+    elements.captureOverlay.classList.add('active');
+
+    // Add event listeners
+    document.addEventListener('keydown', handleCaptureKeydown);
+    document.addEventListener('keyup', handleCaptureKeyup);
+    elements.captureOverlay.addEventListener('mousedown', handleCaptureMousedown);
+}
+
+function closeCaptureModal() {
+    elements.captureOverlay.classList.remove('active');
+    captureMode = null;
+    captureCallback = null;
+    document.removeEventListener('keydown', handleCaptureKeydown);
+    document.removeEventListener('keyup', handleCaptureKeyup);
+    elements.captureOverlay.removeEventListener('mousedown', handleCaptureMousedown);
+}
+
+function handleCaptureKeydown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const key = e.key;
+
+    // Track modifiers
+    if (e.ctrlKey && !capturedKeyData.modifiers.includes('Ctrl')) {
+        capturedKeyData.modifiers.push('Ctrl');
+    }
+    if (e.shiftKey && !capturedKeyData.modifiers.includes('Shift')) {
+        capturedKeyData.modifiers.push('Shift');
+    }
+    if (e.altKey && !capturedKeyData.modifiers.includes('Alt')) {
+        capturedKeyData.modifiers.push('Alt');
+    }
+    if (e.metaKey && !capturedKeyData.modifiers.includes('Win')) {
+        capturedKeyData.modifiers.push('Win');
+    }
+
+    // If it's a modifier key alone, just update display
+    if (['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
+        updateCaptureDisplay();
+        return;
+    }
+
+    // Non-modifier key pressed
+    capturedKeyData.key = key;
+    updateCaptureDisplay();
+    buildAHKCode();
+    elements.confirmCapture.disabled = false;
+}
+
+function handleCaptureKeyup(e) {
+    // Remove modifiers when released (only if no key was pressed yet)
+    if (!capturedKeyData.key) {
+        capturedKeyData.modifiers = [];
+        if (e.ctrlKey) capturedKeyData.modifiers.push('Ctrl');
+        if (e.shiftKey) capturedKeyData.modifiers.push('Shift');
+        if (e.altKey) capturedKeyData.modifiers.push('Alt');
+        if (e.metaKey) capturedKeyData.modifiers.push('Win');
+        updateCaptureDisplay();
+    }
+}
+
+function handleCaptureMousedown(e) {
+    // Ignore clicks on the modal buttons
+    if (e.target.closest('.capture-actions') || e.target.closest('.capture-box button')) {
+        return;
+    }
+
+    // Capture mouse buttons (0=left, 1=middle, 2=right, 3=back, 4=forward)
+    const mouseButtons = {
+        0: 'LButton',
+        1: 'MButton',
+        2: 'RButton',
+        3: 'XButton1',
+        4: 'XButton2'
+    };
+
+    const mouseDisplayNames = {
+        0: 'Esquerdo',
+        1: 'Meio (Scroll)',
+        2: 'Direito',
+        3: 'Lateral 1',
+        4: 'Lateral 2'
+    };
+
+    const buttonId = e.button;
+    if (mouseButtons[buttonId]) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Add modifiers from keyboard
+        capturedKeyData.modifiers = [];
+        if (e.ctrlKey) capturedKeyData.modifiers.push('Ctrl');
+        if (e.shiftKey) capturedKeyData.modifiers.push('Shift');
+        if (e.altKey) capturedKeyData.modifiers.push('Alt');
+        if (e.metaKey) capturedKeyData.modifiers.push('Win');
+
+        capturedKeyData.key = mouseDisplayNames[buttonId];
+        capturedKeyData.ahkCode = mouseButtons[buttonId];
+        capturedKeyData.isMouseButton = true;
+
+        updateCaptureDisplay();
+        elements.confirmCapture.disabled = false;
+    }
+}
+
+function updateCaptureDisplay() {
+    const parts = [...capturedKeyData.modifiers];
+    if (capturedKeyData.key) {
+        parts.push(getKeyDisplayName(capturedKeyData.key));
+    }
+
+    if (parts.length === 0) {
+        elements.capturedKeys.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Aguardando...</span>';
+    } else {
+        elements.capturedKeys.innerHTML = parts.map(p =>
+            `<span class="capture-key">${p}</span>`
+        ).join('<span style="color: var(--text-muted); margin: 0 0.25rem;">+</span>');
+    }
+}
+
+function buildAHKCode() {
+    if (!capturedKeyData.key) return;
+
+    if (capturedKeyData.isMouseButton) {
+        // For trigger mode with mouse buttons, just use the button name
+        let code = '';
+        if (capturedKeyData.modifiers.includes('Ctrl')) code += '^';
+        if (capturedKeyData.modifiers.includes('Shift')) code += '+';
+        if (capturedKeyData.modifiers.includes('Alt')) code += '!';
+        if (capturedKeyData.modifiers.includes('Win')) code += '#';
+        code += capturedKeyData.ahkCode;
+        capturedKeyData.ahkCode = code;
+    } else {
+        // Build AHK code from modifiers + key
+        let code = '';
+        if (capturedKeyData.modifiers.includes('Ctrl')) code += '^';
+        if (capturedKeyData.modifiers.includes('Shift')) code += '+';
+        if (capturedKeyData.modifiers.includes('Alt')) code += '!';
+        if (capturedKeyData.modifiers.includes('Win')) code += '#';
+        code += getAHKKey(capturedKeyData.key);
+        capturedKeyData.ahkCode = code;
+    }
+}
+
+// Map Trigger Button
+elements.mapTriggerBtn.addEventListener('click', () => {
+    openCaptureModal('trigger', (result) => {
+        config.trigger = result.ahkCode;
+        elements.currentTriggerDisplay.textContent = result.ahkCode;
+
+        // Update quick options UI
+        document.querySelectorAll('.trigger-option').forEach(o => {
+            const isMatch = o.dataset.value === result.ahkCode;
+            o.classList.toggle('selected', isMatch);
+            o.querySelector('input').checked = isMatch;
+        });
+
+        updateCodePreview();
+        showToast('Gatilho mapeado: ' + result.ahkCode);
+    });
+});
+
+// Cancel Capture
+elements.cancelCapture.addEventListener('click', closeCaptureModal);
+
+// Confirm Capture
+elements.confirmCapture.addEventListener('click', () => {
+    if (captureCallback) {
+        captureCallback(capturedKeyData);
+    }
+    closeCaptureModal();
 });
 
 // =============================================
@@ -609,6 +890,9 @@ function showSectorEditor(direction) {
 
                             <!-- Ações -->
                             <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-map" id="captureHotkeyBtn" style="flex: 1;">
+                                    <i class="fas fa-crosshairs"></i> Mapear Tecla
+                                </button>
                                 <button class="btn btn-ghost" id="clearAllKeys" style="flex: 1;">
                                     <i class="fas fa-trash"></i> Limpar Tudo
                                 </button>
@@ -856,6 +1140,42 @@ function setupHotkeyBuilder(existingKeys = []) {
         selectedKeys = [];
         updateDisplay();
     });
+
+    // Capture hotkey button
+    const captureHotkeyBtn = document.getElementById('captureHotkeyBtn');
+    if (captureHotkeyBtn) {
+        captureHotkeyBtn.addEventListener('click', () => {
+            openCaptureModal('hotkey', (result) => {
+                // Convert captured data to selected keys format
+                selectedKeys = [];
+
+                // Add modifiers first
+                result.modifiers.forEach(mod => {
+                    const modMap = {
+                        'Ctrl': { key: 'Ctrl', ahk: '^', type: 'modifier' },
+                        'Shift': { key: 'Shift', ahk: '+', type: 'modifier' },
+                        'Alt': { key: 'Alt', ahk: '!', type: 'modifier' },
+                        'Win': { key: 'Win', ahk: '#', type: 'modifier' }
+                    };
+                    if (modMap[mod]) selectedKeys.push(modMap[mod]);
+                });
+
+                // Add the main key
+                if (result.key) {
+                    const displayKey = getKeyDisplayName(result.key);
+                    const ahkKey = result.isMouseButton ? result.ahkCode : getAHKKey(result.key);
+                    selectedKeys.push({
+                        key: displayKey,
+                        ahk: ahkKey,
+                        type: 'captured'
+                    });
+                }
+
+                updateDisplay();
+                showToast('Teclas capturadas!');
+            });
+        });
+    }
 
     // Initialize display with existing keys
     updateDisplay();
