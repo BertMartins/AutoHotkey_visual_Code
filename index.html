@@ -105,8 +105,49 @@
 
                         <div class="tab-content active" id="tabTrigger"
                             style="margin-top: 1.25rem;">
+                            <!-- Mapear Gatilho Personalizado -->
+                            <div
+                                style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px;">
+                                <div
+                                    style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-crosshairs"
+                                            style="color: white; font-size: 1.1rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h4
+                                            style="font-size: 0.9rem; font-weight: 600;">Mapear
+                                            Tecla/Botão</h4>
+                                        <p
+                                            style="font-size: 0.7rem; color: var(--text-muted);">Pressione
+                                            qualquer tecla ou botão do mouse</p>
+                                    </div>
+                                </div>
+                                <div
+                                    style="display: flex; gap: 0.75rem; align-items: center;">
+                                    <button class="btn btn-map"
+                                        id="mapTriggerBtn" style="flex: 1;">
+                                        <i class="fas fa-keyboard"></i>
+                                        Mapear Gatilho
+                                    </button>
+                                    <div id="currentTriggerDisplay" style="
+                                    padding: 0.625rem 1rem;
+                                    background: var(--bg-tertiary);
+                                    border: 1px solid var(--border);
+                                    border-radius: 8px;
+                                    font-family: 'JetBrains Mono', monospace;
+                                    font-size: 0.8rem;
+                                    color: var(--accent);
+                                    font-weight: 600;
+                                    min-width: 100px;
+                                    text-align: center;
+                                ">MButton</div>
+                                </div>
+                            </div>
+
                             <div class="form-group">
-                                <label class="form-label">Botão do Mouse</label>
+                                <label class="form-label">Opções Rápidas</label>
                                 <div
                                     style="display: flex; flex-direction: column; gap: 0.75rem;">
                                     <label class="trigger-option selected"
@@ -600,6 +641,37 @@
         </div>
 
         <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Key Capture Modal -->
+        <div class="capture-overlay" id="captureOverlay">
+            <div class="capture-box">
+                <div class="capture-icon">
+                    <i class="fas fa-keyboard" id="captureIcon"></i>
+                </div>
+                <h3 class="capture-title" id="captureTitle">Pressione uma tecla
+                    ou botão</h3>
+                <p class="capture-subtitle" id="captureSubtitle">A próxima tecla
+                    ou botão do mouse será capturado</p>
+                <div class="capture-keys" id="capturedKeys">
+                    <span
+                        style="color: var(--text-muted); font-size: 0.8rem;">Aguardando...</span>
+                </div>
+                <p class="capture-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Segure modificadores (Ctrl, Shift, Alt, Win) e pressione
+                    outra tecla para combinar
+                </p>
+                <div class="capture-actions">
+                    <button class="btn btn-ghost" id="cancelCapture">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn btn-primary" id="confirmCapture"
+                        disabled>
+                        <i class="fas fa-check"></i> Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <script src="script.js"></script>
     </body>
