@@ -1,29 +1,78 @@
 // =============================================
+// Directions Configuration (4 / 6 / 8 sectors)
+// =============================================
+const DIRECTIONS_CONFIG = {
+    4: [
+        { id: 'top',         label: 'Cima',       angle: 90,  ahkId: 'Top',         minA: 45,    maxA: 135,   wraps: false },
+        { id: 'left',        label: 'Esquerda',   angle: 180, ahkId: 'Left',        minA: 135,   maxA: 225,   wraps: false },
+        { id: 'bottom',      label: 'Baixo',      angle: 270, ahkId: 'Bottom',      minA: 225,   maxA: 315,   wraps: false },
+        { id: 'right',       label: 'Direita',    angle: 0,   ahkId: 'Right',       minA: 315,   maxA: 45,    wraps: true  }
+    ],
+    6: [
+        { id: 'top',         label: 'Cima',       angle: 90,  ahkId: 'Top',         minA: 60,    maxA: 120,   wraps: false },
+        { id: 'topLeft',     label: 'Cima-Esq',   angle: 150, ahkId: 'TopLeft',     minA: 120,   maxA: 180,   wraps: false },
+        { id: 'bottomLeft',  label: 'Baixo-Esq',  angle: 210, ahkId: 'BottomLeft',  minA: 180,   maxA: 240,   wraps: false },
+        { id: 'bottom',      label: 'Baixo',      angle: 270, ahkId: 'Bottom',      minA: 240,   maxA: 300,   wraps: false },
+        { id: 'bottomRight', label: 'Baixo-Dir',  angle: 330, ahkId: 'BottomRight', minA: 300,   maxA: 360,   wraps: false },
+        { id: 'topRight',    label: 'Cima-Dir',   angle: 30,  ahkId: 'TopRight',    minA: 0,     maxA: 60,    wraps: false }
+    ],
+    8: [
+        { id: 'top',         label: 'Cima',       angle: 90,  ahkId: 'Top',         minA: 67.5,  maxA: 112.5, wraps: false },
+        { id: 'topLeft',     label: 'Cima-Esq',   angle: 135, ahkId: 'TopLeft',     minA: 112.5, maxA: 157.5, wraps: false },
+        { id: 'left',        label: 'Esquerda',   angle: 180, ahkId: 'Left',        minA: 157.5, maxA: 202.5, wraps: false },
+        { id: 'bottomLeft',  label: 'Baixo-Esq',  angle: 225, ahkId: 'BottomLeft',  minA: 202.5, maxA: 247.5, wraps: false },
+        { id: 'bottom',      label: 'Baixo',      angle: 270, ahkId: 'Bottom',      minA: 247.5, maxA: 292.5, wraps: false },
+        { id: 'bottomRight', label: 'Baixo-Dir',  angle: 315, ahkId: 'BottomRight', minA: 292.5, maxA: 337.5, wraps: false },
+        { id: 'right',       label: 'Direita',    angle: 0,   ahkId: 'Right',       minA: 337.5, maxA: 22.5,  wraps: true  },
+        { id: 'topRight',    label: 'Cima-Dir',   angle: 45,  ahkId: 'TopRight',    minA: 22.5,  maxA: 67.5,  wraps: false }
+    ]
+};
+
+const DIR_ARROWS = {
+    top: '↑', topLeft: '↖', left: '←', bottomLeft: '↙',
+    bottom: '↓', bottomRight: '↘', right: '→', topRight: '↗'
+};
+
+function getDirections(count) {
+    return DIRECTIONS_CONFIG[count] || DIRECTIONS_CONFIG[4];
+}
+
+function emptySector() {
+    return { label: '', action: '', actionType: 'hotkey' };
+}
+
+function emptyAllSectors() {
+    const s = {};
+    ['top','topLeft','left','bottomLeft','bottom','bottomRight','right','topRight'].forEach(k => { s[k] = emptySector(); });
+    return s;
+}
+
+// =============================================
 // State Management
 // =============================================
 const defaultConfig = {
     trigger: 'MButton',
-    radius: 110,
+    radius: 120,
     deadzone: 30,
     opacity: 235,
-    cornerRadius: 16,
+    cornerRadius: 20,
     fadeIn: 120,
     fadeOut: 120,
     fadeSteps: 12,
-    scaleActive: 1.12,
+    scaleActive: 1.10,
     submenuHoldTime: 1500,
     useHighlight: true,
     colors: {
-        bg: '1E1E1E',
-        item: '333333',
-        itemActive: '1F6FEB',
+        bg: '1A1A2E',
+        item: '2D2D44',
+        itemActive: '6366F1',
         text: 'FFFFFF',
-        hint: 'BFBFBF',
-        aim: 'CCCCCC',
-        aimActive: '1F6FEB',
+        hint: 'A0A0C0',
+        aim: '8888AA',
+        aimActive: '6366F1',
         shadow: '000000',
-        shadowAlpha: 120,
-        acrylicAlpha: 220
+        shadowAlpha: 100,
+        acrylicAlpha: 210
     }
 };
 
@@ -31,21 +80,31 @@ const defaultMenus = {
     main: {
         id: 'main',
         name: 'Menu Principal',
+        sectorCount: 6,
         sectors: {
-            top: { label: 'WIN + TAB', action: 'Send "#{Tab}"', actionType: 'hotkey' },
-            right: { label: 'SNAP DIR', action: 'Send "#{Right}"', actionType: 'hotkey' },
-            bottom: { label: 'DEV', action: 'submenu:dev', actionType: 'submenu' },
-            left: { label: 'SNAP ESQ', action: 'Send "#{Left}"', actionType: 'hotkey' }
+            top:         { label: 'WIN + TAB',  action: 'Send "#{Tab}"',            actionType: 'hotkey'  },
+            topLeft:     { label: 'WIN + D',    action: 'Send "#{d}"',              actionType: 'hotkey'  },
+            bottomLeft:  { label: 'WIN + L',    action: 'Send "#{l}"',              actionType: 'hotkey'  },
+            bottom:      { label: 'EXPLORADOR', action: 'Run "explorer.exe"',       actionType: 'custom'  },
+            bottomRight: { label: 'DEV TOOLS',  action: 'submenu:dev',              actionType: 'submenu' },
+            topRight:    { label: 'ALT + TAB',  action: 'Send "!{Tab}"',            actionType: 'hotkey'  },
+            left:        emptySector(),
+            right:       emptySector()
         }
     },
     dev: {
         id: 'dev',
         name: 'Dev Tools',
+        sectorCount: 8,
         sectors: {
-            top: { label: 'F5', action: 'Send "{F5}"', actionType: 'hotkey' },
-            right: { label: 'CTRL+F12', action: 'Send "^{F12}"', actionType: 'hotkey' },
-            bottom: { label: 'OUTLINE', action: 'Send "^+o"', actionType: 'hotkey' },
-            left: { label: 'CTRL+F5', action: 'Send "^{F5}"', actionType: 'hotkey' }
+            top:         { label: 'F5 DEBUG',   action: 'Send "{F5}"',              actionType: 'hotkey' },
+            topLeft:     { label: 'CMD PLT',    action: 'Send "^+p"',               actionType: 'hotkey' },
+            left:        { label: 'TERMINAL',   action: 'Send "^``"',               actionType: 'hotkey' },
+            bottomLeft:  { label: 'GIT',        action: 'Send "^+g"',               actionType: 'hotkey' },
+            bottom:      { label: 'CTRL+Z',     action: 'Send "^z"',                actionType: 'hotkey' },
+            bottomRight: { label: 'EXPLORER',   action: 'Send "^+e"',               actionType: 'hotkey' },
+            right:       { label: 'GO TO DEF',  action: 'Send "{F12}"',             actionType: 'hotkey' },
+            topRight:    { label: 'CTRL+S',     action: 'Send "^s"',                actionType: 'hotkey' }
         }
     }
 };
@@ -64,10 +123,8 @@ const elements = {
     resetBtn: document.getElementById('resetBtn'),
     generateBtn: document.getElementById('generateBtn'),
     menuPath: document.getElementById('menuPath'),
-    sectorTop: document.getElementById('sectorTop'),
-    sectorRight: document.getElementById('sectorRight'),
-    sectorBottom: document.getElementById('sectorBottom'),
-    sectorLeft: document.getElementById('sectorLeft'),
+    radialPreview: document.getElementById('radialPreview'),
+    radialLines: document.getElementById('radialLines'),
     sectorEditor: document.getElementById('sectorEditor'),
     editorTitle: document.getElementById('editorTitle'),
     submenuList: document.getElementById('submenuList'),
@@ -75,6 +132,7 @@ const elements = {
     copyCodeBtn: document.getElementById('copyCodeBtn'),
     settingsTabs: document.getElementById('settingsTabs'),
     addSubmenuBtn: document.getElementById('addSubmenuBtn'),
+    sectorCountBtns: document.querySelectorAll('.sector-count-btn'),
 
     // Settings inputs
     menuRadius: document.getElementById('menuRadius'),
@@ -98,13 +156,9 @@ const elements = {
     textColorText: document.getElementById('textColorText'),
     useHighlightToggle: document.getElementById('useHighlightToggle'),
     highlightToggleSwitch: document.getElementById('highlightToggleSwitch'),
-    visualPreview: document.getElementById('visualPreview'),
     visualPreviewContainer: document.getElementById('visualPreviewContainer'),
-    previewCenter: document.getElementById('previewCenter'),
-    previewTop: document.getElementById('previewTop'),
-    previewRight: document.getElementById('previewRight'),
-    previewBottom: document.getElementById('previewBottom'),
-    previewLeft: document.getElementById('previewLeft'),
+    visualPreviewSvg: document.getElementById('visualPreviewSvg'),
+    visualPreviewCenter: document.getElementById('visualPreviewCenter'),
 
     // Modals
     submenuModal: document.getElementById('submenuModal'),
@@ -122,7 +176,6 @@ const elements = {
 
     toastContainer: document.getElementById('toastContainer'),
 
-    // Capture Modal
     captureOverlay: document.getElementById('captureOverlay'),
     captureIcon: document.getElementById('captureIcon'),
     captureTitle: document.getElementById('captureTitle'),
@@ -142,16 +195,6 @@ function initTheme() {
         document.documentElement.classList.add('light');
         elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
     }
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        if (event.matches) {
-            document.documentElement.classList.remove('light');
-            elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-        } else {
-            document.documentElement.classList.add('light');
-            elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        }
-    });
 }
 
 elements.themeToggle.addEventListener('click', () => {
@@ -164,21 +207,11 @@ elements.themeToggle.addEventListener('click', () => {
 // Toast Notifications
 // =============================================
 function showToast(message, type = 'success') {
-    const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        warning: 'fa-exclamation-triangle'
-    };
-
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `
-                <i class="fas ${icons[type]}"></i>
-                <span class="toast-message">${message}</span>
-            `;
-
+    toast.innerHTML = `<i class="fas ${icons[type]}"></i><span class="toast-message">${message}</span>`;
     elements.toastContainer.appendChild(toast);
-
     setTimeout(() => {
         toast.style.animation = 'slideIn 0.3s ease reverse';
         setTimeout(() => toast.remove(), 300);
@@ -192,7 +225,6 @@ elements.settingsTabs.addEventListener('click', (e) => {
     if (e.target.classList.contains('tab')) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
         e.target.classList.add('active');
         const tabId = 'tab' + e.target.dataset.tab.charAt(0).toUpperCase() + e.target.dataset.tab.slice(1);
         document.getElementById(tabId).classList.add('active');
@@ -216,76 +248,35 @@ document.querySelectorAll('.trigger-option').forEach(option => {
 // =============================================
 // Key Capture System
 // =============================================
-let captureMode = null; // 'trigger' or 'hotkey'
+let captureMode = null;
 let capturedKeyData = { modifiers: [], key: null, ahkCode: '' };
 let captureCallback = null;
 
-// Key mapping for AHK
 const keyToAHK = {
-    // Mouse buttons
-    'Mouse0': 'LButton',
-    'Mouse1': 'RButton',
-    'Mouse2': 'MButton',
-    'Mouse3': 'XButton1',
-    'Mouse4': 'XButton2',
-    // Modifiers
-    'Control': '^',
-    'Shift': '+',
-    'Alt': '!',
-    'Meta': '#',
-    // Special keys
-    'ArrowLeft': '{Left}',
-    'ArrowRight': '{Right}',
-    'ArrowUp': '{Up}',
-    'ArrowDown': '{Down}',
-    'Enter': '{Enter}',
-    'Tab': '{Tab}',
-    'Escape': '{Escape}',
-    'Backspace': '{Backspace}',
-    'Delete': '{Delete}',
-    'Home': '{Home}',
-    'End': '{End}',
-    'PageUp': '{PgUp}',
-    'PageDown': '{PgDn}',
-    'Insert': '{Insert}',
-    'PrintScreen': '{PrintScreen}',
-    'Pause': '{Pause}',
-    'ScrollLock': '{ScrollLock}',
-    'NumLock': '{NumLock}',
+    'Mouse0': 'LButton', 'Mouse1': 'RButton', 'Mouse2': 'MButton',
+    'Mouse3': 'XButton1', 'Mouse4': 'XButton2',
+    'Control': '^', 'Shift': '+', 'Alt': '!', 'Meta': '#',
+    'ArrowLeft': '{Left}', 'ArrowRight': '{Right}', 'ArrowUp': '{Up}', 'ArrowDown': '{Down}',
+    'Enter': '{Enter}', 'Tab': '{Tab}', 'Escape': '{Escape}', 'Backspace': '{Backspace}',
+    'Delete': '{Delete}', 'Home': '{Home}', 'End': '{End}', 'PageUp': '{PgUp}',
+    'PageDown': '{PgDn}', 'Insert': '{Insert}', 'PrintScreen': '{PrintScreen}',
+    'Pause': '{Pause}', 'ScrollLock': '{ScrollLock}', 'NumLock': '{NumLock}',
     'CapsLock': '{CapsLock}',
-    'F1': '{F1}', 'F2': '{F2}', 'F3': '{F3}', 'F4': '{F4}',
-    'F5': '{F5}', 'F6': '{F6}', 'F7': '{F7}', 'F8': '{F8}',
-    'F9': '{F9}', 'F10': '{F10}', 'F11': '{F11}', 'F12': '{F12}',
-    ' ': '{Space}',
+    'F1':'{F1}','F2':'{F2}','F3':'{F3}','F4':'{F4}','F5':'{F5}','F6':'{F6}',
+    'F7':'{F7}','F8':'{F8}','F9':'{F9}','F10':'{F10}','F11':'{F11}','F12':'{F12}',
+    ' ': '{Space}'
 };
 
-// Readable key names
 const keyDisplayName = {
-    'ArrowLeft': '←',
-    'ArrowRight': '→',
-    'ArrowUp': '↑',
-    'ArrowDown': '↓',
-    'Control': 'Ctrl',
-    'Meta': 'Win',
-    ' ': 'Space',
-    'Escape': 'Esc',
-    'Backspace': '⌫',
-    'Delete': 'Del',
-    'PageUp': 'PgUp',
-    'PageDown': 'PgDn',
-    'PrintScreen': 'PrtSc',
+    'ArrowLeft': '←', 'ArrowRight': '→', 'ArrowUp': '↑', 'ArrowDown': '↓',
+    'Control': 'Ctrl', 'Meta': 'Win', ' ': 'Space', 'Escape': 'Esc',
+    'Backspace': '⌫', 'Delete': 'Del', 'PageUp': 'PgUp', 'PageDown': 'PgDn',
+    'PrintScreen': 'PrtSc'
 };
 
-function getKeyDisplayName(key) {
-    return keyDisplayName[key] || key;
-}
-
-function getAHKKey(key, isMouseButton = false) {
-    if (isMouseButton) {
-        return keyToAHK['Mouse' + key] || 'MButton';
-    }
+function getKeyDisplayName(key) { return keyDisplayName[key] || key; }
+function getAHKKey(key) {
     if (keyToAHK[key]) return keyToAHK[key];
-    // For regular letters and numbers
     if (key.length === 1) return key.toLowerCase();
     return `{${key}}`;
 }
@@ -294,8 +285,6 @@ function openCaptureModal(mode, callback) {
     captureMode = mode;
     captureCallback = callback;
     capturedKeyData = { modifiers: [], key: null, ahkCode: '' };
-
-    // Update modal text based on mode
     if (mode === 'trigger') {
         elements.captureIcon.className = 'fas fa-mouse';
         elements.captureTitle.textContent = 'Mapear Gatilho';
@@ -305,12 +294,9 @@ function openCaptureModal(mode, callback) {
         elements.captureTitle.textContent = 'Capturar Atalho';
         elements.captureSubtitle.textContent = 'Pressione a combinação de teclas desejada';
     }
-
     elements.capturedKeys.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Aguardando...</span>';
     elements.confirmCapture.disabled = true;
     elements.captureOverlay.classList.add('active');
-
-    // Add event listeners
     document.addEventListener('keydown', handleCaptureKeydown);
     document.addEventListener('keyup', handleCaptureKeyup);
     elements.captureOverlay.addEventListener('mousedown', handleCaptureMousedown);
@@ -318,48 +304,26 @@ function openCaptureModal(mode, callback) {
 
 function closeCaptureModal() {
     elements.captureOverlay.classList.remove('active');
-    captureMode = null;
-    captureCallback = null;
+    captureMode = null; captureCallback = null;
     document.removeEventListener('keydown', handleCaptureKeydown);
     document.removeEventListener('keyup', handleCaptureKeyup);
     elements.captureOverlay.removeEventListener('mousedown', handleCaptureMousedown);
 }
 
 function handleCaptureKeydown(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
+    e.preventDefault(); e.stopPropagation();
     const key = e.key;
-
-    // Track modifiers
-    if (e.ctrlKey && !capturedKeyData.modifiers.includes('Ctrl')) {
-        capturedKeyData.modifiers.push('Ctrl');
-    }
-    if (e.shiftKey && !capturedKeyData.modifiers.includes('Shift')) {
-        capturedKeyData.modifiers.push('Shift');
-    }
-    if (e.altKey && !capturedKeyData.modifiers.includes('Alt')) {
-        capturedKeyData.modifiers.push('Alt');
-    }
-    if (e.metaKey && !capturedKeyData.modifiers.includes('Win')) {
-        capturedKeyData.modifiers.push('Win');
-    }
-
-    // If it's a modifier key alone, just update display
-    if (['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
-        updateCaptureDisplay();
-        return;
-    }
-
-    // Non-modifier key pressed
+    if (e.ctrlKey && !capturedKeyData.modifiers.includes('Ctrl')) capturedKeyData.modifiers.push('Ctrl');
+    if (e.shiftKey && !capturedKeyData.modifiers.includes('Shift')) capturedKeyData.modifiers.push('Shift');
+    if (e.altKey && !capturedKeyData.modifiers.includes('Alt')) capturedKeyData.modifiers.push('Alt');
+    if (e.metaKey && !capturedKeyData.modifiers.includes('Win')) capturedKeyData.modifiers.push('Win');
+    if (['Control', 'Shift', 'Alt', 'Meta'].includes(key)) { updateCaptureDisplay(); return; }
     capturedKeyData.key = key;
-    updateCaptureDisplay();
-    buildAHKCode();
+    updateCaptureDisplay(); buildAHKCode();
     elements.confirmCapture.disabled = false;
 }
 
 function handleCaptureKeyup(e) {
-    // Remove modifiers when released (only if no key was pressed yet)
     if (!capturedKeyData.key) {
         capturedKeyData.modifiers = [];
         if (e.ctrlKey) capturedKeyData.modifiers.push('Ctrl');
@@ -371,44 +335,19 @@ function handleCaptureKeyup(e) {
 }
 
 function handleCaptureMousedown(e) {
-    // Ignore clicks on the modal buttons
-    if (e.target.closest('.capture-actions') || e.target.closest('.capture-box button')) {
-        return;
-    }
-
-    // Capture mouse buttons (0=left, 1=middle, 2=right, 3=back, 4=forward)
-    const mouseButtons = {
-        0: 'LButton',
-        1: 'MButton',
-        2: 'RButton',
-        3: 'XButton1',
-        4: 'XButton2'
-    };
-
-    const mouseDisplayNames = {
-        0: 'Esquerdo',
-        1: 'Meio (Scroll)',
-        2: 'Direito',
-        3: 'Lateral 1',
-        4: 'Lateral 2'
-    };
-
-    const buttonId = e.button;
-    if (mouseButtons[buttonId]) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Add modifiers from keyboard
+    if (e.target.closest('.capture-actions')) return;
+    const mouseButtons = { 0:'LButton', 1:'MButton', 2:'RButton', 3:'XButton1', 4:'XButton2' };
+    const mouseDisplayNames = { 0:'Esquerdo', 1:'Meio (Scroll)', 2:'Direito', 3:'Lateral 1', 4:'Lateral 2' };
+    if (mouseButtons[e.button]) {
+        e.preventDefault(); e.stopPropagation();
         capturedKeyData.modifiers = [];
         if (e.ctrlKey) capturedKeyData.modifiers.push('Ctrl');
         if (e.shiftKey) capturedKeyData.modifiers.push('Shift');
         if (e.altKey) capturedKeyData.modifiers.push('Alt');
         if (e.metaKey) capturedKeyData.modifiers.push('Win');
-
-        capturedKeyData.key = mouseDisplayNames[buttonId];
-        capturedKeyData.ahkCode = mouseButtons[buttonId];
+        capturedKeyData.key = mouseDisplayNames[e.button];
+        capturedKeyData.ahkCode = mouseButtons[e.button];
         capturedKeyData.isMouseButton = true;
-
         updateCaptureDisplay();
         elements.confirmCapture.disabled = false;
     }
@@ -416,209 +355,161 @@ function handleCaptureMousedown(e) {
 
 function updateCaptureDisplay() {
     const parts = [...capturedKeyData.modifiers];
-    if (capturedKeyData.key) {
-        parts.push(getKeyDisplayName(capturedKeyData.key));
-    }
-
+    if (capturedKeyData.key) parts.push(getKeyDisplayName(capturedKeyData.key));
     if (parts.length === 0) {
         elements.capturedKeys.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Aguardando...</span>';
     } else {
-        elements.capturedKeys.innerHTML = parts.map(p =>
-            `<span class="capture-key">${p}</span>`
-        ).join('<span style="color: var(--text-muted); margin: 0 0.25rem;">+</span>');
+        elements.capturedKeys.innerHTML = parts.map(p => `<span class="capture-key">${p}</span>`).join('<span style="color: var(--text-muted); margin: 0 0.25rem;">+</span>');
     }
 }
 
 function buildAHKCode() {
     if (!capturedKeyData.key) return;
-
-    if (capturedKeyData.isMouseButton) {
-        // For trigger mode with mouse buttons, just use the button name
-        let code = '';
-        if (capturedKeyData.modifiers.includes('Ctrl')) code += '^';
-        if (capturedKeyData.modifiers.includes('Shift')) code += '+';
-        if (capturedKeyData.modifiers.includes('Alt')) code += '!';
-        if (capturedKeyData.modifiers.includes('Win')) code += '#';
-        code += capturedKeyData.ahkCode;
-        capturedKeyData.ahkCode = code;
-    } else {
-        // Build AHK code from modifiers + key
-        let code = '';
-        if (capturedKeyData.modifiers.includes('Ctrl')) code += '^';
-        if (capturedKeyData.modifiers.includes('Shift')) code += '+';
-        if (capturedKeyData.modifiers.includes('Alt')) code += '!';
-        if (capturedKeyData.modifiers.includes('Win')) code += '#';
-        code += getAHKKey(capturedKeyData.key);
-        capturedKeyData.ahkCode = code;
-    }
+    let code = '';
+    if (capturedKeyData.modifiers.includes('Ctrl')) code += '^';
+    if (capturedKeyData.modifiers.includes('Shift')) code += '+';
+    if (capturedKeyData.modifiers.includes('Alt')) code += '!';
+    if (capturedKeyData.modifiers.includes('Win')) code += '#';
+    code += capturedKeyData.isMouseButton ? capturedKeyData.ahkCode : getAHKKey(capturedKeyData.key);
+    capturedKeyData.ahkCode = code;
 }
 
-// Map Trigger Button
 elements.mapTriggerBtn.addEventListener('click', () => {
     openCaptureModal('trigger', (result) => {
         config.trigger = result.ahkCode;
         elements.currentTriggerDisplay.textContent = result.ahkCode;
-
-        // Update quick options UI
         document.querySelectorAll('.trigger-option').forEach(o => {
             const isMatch = o.dataset.value === result.ahkCode;
             o.classList.toggle('selected', isMatch);
             o.querySelector('input').checked = isMatch;
         });
-
         updateCodePreview();
         showToast('Gatilho mapeado: ' + result.ahkCode);
     });
 });
 
-// Cancel Capture
 elements.cancelCapture.addEventListener('click', closeCaptureModal);
-
-// Confirm Capture
 elements.confirmCapture.addEventListener('click', () => {
-    if (captureCallback) {
-        captureCallback(capturedKeyData);
-    }
+    if (captureCallback) captureCallback(capturedKeyData);
     closeCaptureModal();
 });
 
 // =============================================
 // Color Inputs
 // =============================================
-elements.bgColor.addEventListener('input', () => {
-    elements.bgColorText.value = elements.bgColor.value.substring(1).toUpperCase();
-    config.colors.bg = elements.bgColorText.value;
-    updateCodePreview();
-});
-
-elements.bgColorText.addEventListener('input', () => {
-    const val = elements.bgColorText.value.replace(/[^0-9A-Fa-f]/g, '').substring(0, 6);
-    elements.bgColorText.value = val.toUpperCase();
-    if (val.length === 6) {
-        elements.bgColor.value = '#' + val;
-        config.colors.bg = val;
-        updateCodePreview();
-    }
-});
-
-elements.accentColor.addEventListener('input', () => {
-    elements.accentColorText.value = elements.accentColor.value.substring(1).toUpperCase();
-    config.colors.itemActive = elements.accentColorText.value;
-    config.colors.aimActive = elements.accentColorText.value;
-    updateCodePreview();
-});
-
-elements.accentColorText.addEventListener('input', () => {
-    const val = elements.accentColorText.value.replace(/[^0-9A-Fa-f]/g, '').substring(0, 6);
-    elements.accentColorText.value = val.toUpperCase();
-    if (val.length === 6) {
-        elements.accentColor.value = '#' + val;
-        config.colors.itemActive = val;
-        config.colors.aimActive = val;
-        updateCodePreview();
-        updateVisualPreview();
-    }
-});
-
-// Item Color (setor)
-elements.itemColor.addEventListener('input', () => {
-    elements.itemColorText.value = elements.itemColor.value.substring(1).toUpperCase();
-    config.colors.item = elements.itemColorText.value;
-    updateCodePreview();
-    updateVisualPreview();
-});
-
-elements.itemColorText.addEventListener('input', () => {
-    const val = elements.itemColorText.value.replace(/[^0-9A-Fa-f]/g, '').substring(0, 6);
-    elements.itemColorText.value = val.toUpperCase();
-    if (val.length === 6) {
-        elements.itemColor.value = '#' + val;
-        config.colors.item = val;
-        updateCodePreview();
-        updateVisualPreview();
-    }
-});
-
-// Text Color
-elements.textColor.addEventListener('input', () => {
-    elements.textColorText.value = elements.textColor.value.substring(1).toUpperCase();
-    config.colors.text = elements.textColorText.value;
-    updateCodePreview();
-    updateVisualPreview();
-});
-
-elements.textColorText.addEventListener('input', () => {
-    const val = elements.textColorText.value.replace(/[^0-9A-Fa-f]/g, '').substring(0, 6);
-    elements.textColorText.value = val.toUpperCase();
-    if (val.length === 6) {
-        elements.textColor.value = '#' + val;
-        config.colors.text = val;
-        updateCodePreview();
-        updateVisualPreview();
-    }
-});
-
-// Update bg and accent to also update preview
-elements.bgColor.removeEventListener('input', () => { });
-elements.bgColor.addEventListener('input', () => {
-    elements.bgColorText.value = elements.bgColor.value.substring(1).toUpperCase();
-    config.colors.bg = elements.bgColorText.value;
-    updateCodePreview();
-    updateVisualPreview();
-});
-
-// Highlight Toggle
-elements.useHighlightToggle.addEventListener('click', () => {
-    config.useHighlight = !config.useHighlight;
-    elements.highlightToggleSwitch.classList.toggle('active', config.useHighlight);
-    updateCodePreview();
-    updateVisualPreview();
-});
-
-// =============================================
-// Visual Preview
-// =============================================
-function updateVisualPreview() {
-    const c = config.colors;
-
-    // Container background
-    elements.visualPreviewContainer.style.background = `linear-gradient(135deg, #${c.bg}dd 0%, #${c.bg} 100%)`;
-
-    // Main preview background
-    elements.visualPreview.style.background = `#${c.bg}`;
-    elements.visualPreview.style.borderRadius = `${config.cornerRadius}px`;
-    elements.visualPreview.style.boxShadow = `0 8px 32px rgba(0,0,0,0.3)`;
-
-    // Center
-    elements.previewCenter.style.background = `#${c.item}`;
-    elements.previewCenter.style.color = `#${c.text}`;
-
-    // Sectors
-    const previewSectors = [elements.previewTop, elements.previewRight, elements.previewBottom, elements.previewLeft];
-    previewSectors.forEach(sector => {
-        sector.style.background = `#${c.item}`;
-        sector.style.color = `#${c.text}`;
+function syncColor(colorEl, textEl, configKey) {
+    colorEl.addEventListener('input', () => {
+        const hex = colorEl.value.substring(1).toUpperCase();
+        textEl.value = hex;
+        setConfigColor(configKey, hex);
+        updateCodePreview(); updateVisualPreview();
+    });
+    textEl.addEventListener('input', () => {
+        const val = textEl.value.replace(/[^0-9A-Fa-f]/g, '').substring(0, 6).toUpperCase();
+        textEl.value = val;
+        if (val.length === 6) {
+            colorEl.value = '#' + val;
+            setConfigColor(configKey, val);
+            updateCodePreview(); updateVisualPreview();
+        }
     });
 }
 
-// Preview sector hover effect
-document.querySelectorAll('.preview-sector').forEach(sector => {
-    sector.addEventListener('mouseenter', () => {
-        if (config.useHighlight) {
-            sector.style.background = `#${config.colors.itemActive}`;
-            sector.style.transform = sector.dataset.sector === 'top' || sector.dataset.sector === 'bottom'
-                ? `translateX(-50%) scale(${config.scaleActive})`
-                : `translateY(-50%) scale(${config.scaleActive})`;
-        }
-    });
+function setConfigColor(key, val) {
+    if (key === 'accent') { config.colors.itemActive = val; config.colors.aimActive = val; }
+    else if (key === 'bg') config.colors.bg = val;
+    else if (key === 'item') config.colors.item = val;
+    else if (key === 'text') config.colors.text = val;
+}
 
-    sector.addEventListener('mouseleave', () => {
-        sector.style.background = `#${config.colors.item}`;
-        sector.style.transform = sector.dataset.sector === 'top' || sector.dataset.sector === 'bottom'
-            ? 'translateX(-50%)'
-            : 'translateY(-50%)';
-    });
+syncColor(elements.bgColor, elements.bgColorText, 'bg');
+syncColor(elements.itemColor, elements.itemColorText, 'item');
+syncColor(elements.accentColor, elements.accentColorText, 'accent');
+syncColor(elements.textColor, elements.textColorText, 'text');
+
+elements.useHighlightToggle.addEventListener('click', () => {
+    config.useHighlight = !config.useHighlight;
+    elements.highlightToggleSwitch.classList.toggle('active', config.useHighlight);
+    updateCodePreview(); updateVisualPreview();
 });
+
+// =============================================
+// Visual Preview (mini — aba Visual)
+// =============================================
+function updateVisualPreview() {
+    const c = config.colors;
+    const menu = menus[currentMenu];
+    const dirs = getDirections(menu.sectorCount);
+
+    elements.visualPreviewContainer.style.background = `linear-gradient(135deg, #${c.bg}dd 0%, #${c.bg} 100%)`;
+
+    // Re-render sectors
+    const existing = elements.visualPreviewContainer.querySelectorAll('.vp-sector');
+    existing.forEach(el => el.remove());
+
+    const W = 180, H = 180, cx = W / 2, cy = H / 2, r = 66;
+
+    // SVG lines
+    const svgEl = elements.visualPreviewSvg;
+    svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svgEl.setAttribute('width', W); svgEl.setAttribute('height', H);
+    const step = 360 / dirs.length;
+    let svgContent = `<circle cx="${cx}" cy="${cy}" r="${r-2}" fill="none" stroke="#${c.item}" stroke-width="1" opacity="0.5"/>`;
+    svgContent += `<circle cx="${cx}" cy="${cy}" r="20" fill="none" stroke="#${c.item}" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>`;
+    for (let i = 0; i < dirs.length; i++) {
+        const a = ((90 + step / 2 + i * step) * Math.PI / 180);
+        const x2 = (cx + r * Math.cos(a)).toFixed(1);
+        const y2 = (cy - r * Math.sin(a)).toFixed(1);
+        svgContent += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#${c.item}" stroke-width="0.8" opacity="0.4"/>`;
+    }
+    svgEl.innerHTML = svgContent;
+
+    // Center
+    elements.visualPreviewCenter.style.background = `#${c.item}`;
+    elements.visualPreviewCenter.style.color = `#${c.text}`;
+    elements.visualPreviewCenter.style.borderColor = `#${c.itemActive}33`;
+
+    // Sectors
+    const container = elements.visualPreviewContainer;
+    const vpDiv = container.querySelector('#visualPreviewInner');
+    dirs.forEach(dir => {
+        const rad = dir.angle * Math.PI / 180;
+        const px = cx + r * Math.cos(rad);
+        const py = cy - r * Math.sin(rad);
+        const sector = menus[currentMenu].sectors[dir.id];
+        const div = document.createElement('div');
+        div.className = 'vp-sector';
+        div.style.cssText = `
+            position: absolute;
+            left: calc(50% + ${(px - cx).toFixed(1)}px);
+            top: calc(50% + ${(py - cy).toFixed(1)}px);
+            transform: translate(-50%, -50%);
+            background: #${c.item};
+            color: #${c.text};
+            font-size: 0.5rem;
+            font-weight: 700;
+            padding: 0.2rem 0.4rem;
+            border-radius: 5px;
+            text-align: center;
+            white-space: nowrap;
+            max-width: 52px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #${c.item}88;
+            z-index: 5;
+        `;
+        div.textContent = DIR_ARROWS[dir.id] + ' ' + (sector.label || dir.label);
+        div.addEventListener('mouseenter', () => {
+            if (config.useHighlight) div.style.background = `#${c.itemActive}`;
+        });
+        div.addEventListener('mouseleave', () => {
+            div.style.background = `#${c.item}`;
+        });
+        container.appendChild(div);
+    });
+}
 
 // =============================================
 // Settings Inputs
@@ -626,42 +517,23 @@ document.querySelectorAll('.preview-sector').forEach(sector => {
 ['menuRadius', 'deadzone', 'menuOpacity', 'cornerRadius', 'fadeIn', 'fadeOut', 'fadeSteps', 'scaleActive', 'submenuHoldTime'].forEach(id => {
     elements[id].addEventListener('input', () => {
         const mapping = {
-            menuRadius: 'radius',
-            menuOpacity: 'opacity',
-            cornerRadius: 'cornerRadius',
-            deadzone: 'deadzone',
-            fadeIn: 'fadeIn',
-            fadeOut: 'fadeOut',
-            fadeSteps: 'fadeSteps',
-            scaleActive: 'scaleActive',
-            submenuHoldTime: 'submenuHoldTime'
+            menuRadius: 'radius', menuOpacity: 'opacity', cornerRadius: 'cornerRadius',
+            deadzone: 'deadzone', fadeIn: 'fadeIn', fadeOut: 'fadeOut',
+            fadeSteps: 'fadeSteps', scaleActive: 'scaleActive', submenuHoldTime: 'submenuHoldTime'
         };
-
         let val = parseFloat(elements[id].value);
-        if (id === 'menuOpacity') {
-            val = Math.round(val * 2.55); // Convert 0-100 to 0-255
-        }
+        if (id === 'menuOpacity') val = Math.round(val * 2.55);
         config[mapping[id]] = val;
-
-        // Sync submenu hold time slider and display
         if (id === 'submenuHoldTime') {
             elements.submenuHoldTimeRange.value = val;
             updateHoldTimeDisplay(val);
         }
-
-        // Update visual preview for visual settings
-        if (['cornerRadius', 'scaleActive'].includes(id)) {
-            updateVisualPreview();
-        }
-
         updateCodePreview();
     });
 });
 
-// Submenu hold time range slider sync
 function updateHoldTimeDisplay(ms) {
-    const seconds = (ms / 1000).toFixed(1);
-    elements.holdTimeDisplay.textContent = seconds + ' segundos';
+    elements.holdTimeDisplay.textContent = (ms / 1000).toFixed(1) + ' segundos';
 }
 
 elements.submenuHoldTimeRange.addEventListener('input', () => {
@@ -673,43 +545,122 @@ elements.submenuHoldTimeRange.addEventListener('input', () => {
 });
 
 // =============================================
-// Sector Selection & Editing
+// Sector Count Selector
 // =============================================
-function updateSectorDisplay() {
+elements.sectorCountBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const count = parseInt(btn.dataset.count);
+        const menu = menus[currentMenu];
+        menu.sectorCount = count;
+
+        elements.sectorCountBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        selectedSector = null;
+        renderRadialPreview();
+        updateSectorDisplay();
+        showEmptyEditor();
+        updateCodePreview();
+        updateVisualPreview();
+    });
+});
+
+function syncSectorCountBtns() {
+    const count = menus[currentMenu].sectorCount;
+    elements.sectorCountBtns.forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.count) === count);
+    });
+}
+
+// =============================================
+// Radial Preview (main)
+// =============================================
+const PREVIEW_SIZE = 300;
+const PREVIEW_CX = PREVIEW_SIZE / 2;
+const PREVIEW_CY = PREVIEW_SIZE / 2;
+const PREVIEW_R = 110;
+
+function renderRadialPreview() {
     const menu = menus[currentMenu];
-    const sectors = {
-        top: elements.sectorTop,
-        right: elements.sectorRight,
-        bottom: elements.sectorBottom,
-        left: elements.sectorLeft
-    };
+    const dirs = getDirections(menu.sectorCount);
 
-    Object.keys(sectors).forEach(dir => {
-        const sector = sectors[dir];
-        const data = menu.sectors[dir];
+    // Remove existing dynamic sectors
+    elements.radialPreview.querySelectorAll('.radial-sector').forEach(el => el.remove());
 
-        sector.textContent = data.label || dir.toUpperCase();
-        sector.classList.toggle('has-action', !!data.action);
-        sector.classList.toggle('active', selectedSector === dir);
+    // Update SVG lines
+    const svg = elements.radialLines;
+    const step = 360 / dirs.length;
+    let svgContent = `<circle cx="${PREVIEW_CX}" cy="${PREVIEW_CY}" r="${PREVIEW_R - 2}" fill="none" stroke="var(--border)" stroke-width="1.5"/>`;
+    svgContent += `<circle cx="${PREVIEW_CX}" cy="${PREVIEW_CY}" r="42" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>`;
+    for (let i = 0; i < dirs.length; i++) {
+        const a = ((90 + step / 2 + i * step) * Math.PI / 180);
+        const x1 = (PREVIEW_CX + 42 * Math.cos(a)).toFixed(1);
+        const y1 = (PREVIEW_CY - 42 * Math.sin(a)).toFixed(1);
+        const x2 = (PREVIEW_CX + (PREVIEW_R - 2) * Math.cos(a)).toFixed(1);
+        const y2 = (PREVIEW_CY - (PREVIEW_R - 2) * Math.sin(a)).toFixed(1);
+        svgContent += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--border)" stroke-width="1"/>`;
+    }
+    svg.innerHTML = svgContent;
+
+    // Create sector elements
+    dirs.forEach(dir => {
+        const rad = dir.angle * Math.PI / 180;
+        const px = PREVIEW_CX + PREVIEW_R * 0.68 * Math.cos(rad);
+        const py = PREVIEW_CY - PREVIEW_R * 0.68 * Math.sin(rad);
+
+        const div = document.createElement('div');
+        div.className = 'radial-sector';
+        div.dataset.direction = dir.id;
+        div.style.left = px.toFixed(1) + 'px';
+        div.style.top = py.toFixed(1) + 'px';
+
+        const sector = menu.sectors[dir.id];
+        div.textContent = sector.label || dir.label;
+
+        div.addEventListener('click', () => {
+            selectedSector = dir.id;
+            updateSectorDisplay();
+            showSectorEditor(dir.id);
+        });
+
+        elements.radialPreview.appendChild(div);
     });
 
-    // Update path
+    updateSectorDisplay();
+}
+
+function updateSectorDisplay() {
+    const menu = menus[currentMenu];
+    const dirs = getDirections(menu.sectorCount);
+
+    elements.radialPreview.querySelectorAll('.radial-sector').forEach(el => {
+        const dirId = el.dataset.direction;
+        const dir = dirs.find(d => d.id === dirId);
+        if (!dir) return;
+        const sector = menu.sectors[dirId];
+        el.textContent = sector.label || dir.label;
+        el.classList.remove('has-action', 'active', 'is-submenu');
+        if (sector.action) el.classList.add('has-action');
+        if (sector.actionType === 'submenu') el.classList.add('is-submenu');
+        if (selectedSector === dirId) el.classList.add('active');
+    });
+
+    // Update breadcrumb
     if (currentMenu === 'main') {
         elements.menuPath.innerHTML = '<span class="menu-path-item current" data-menu="main">Menu Principal</span>';
     } else {
         elements.menuPath.innerHTML = `
-                    <span class="menu-path-item" data-menu="main">Menu Principal</span>
-                    <span class="menu-path-sep"><i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i></span>
-                    <span class="menu-path-item current" data-menu="${currentMenu}">${menus[currentMenu].name}</span>
-                `;
+            <span class="menu-path-item" data-menu="main">Menu Principal</span>
+            <span class="menu-path-sep"><i class="fas fa-chevron-right" style="font-size:0.6rem;"></i></span>
+            <span class="menu-path-item current" data-menu="${currentMenu}">${menus[currentMenu].name}</span>`;
     }
 
-    // Add click handlers to path items
     document.querySelectorAll('.menu-path-item').forEach(item => {
         item.addEventListener('click', () => {
             currentMenu = item.dataset.menu;
             selectedSector = null;
-            updateSectorDisplay();
+            syncSectorCountBtns();
+            renderRadialPreview();
             showEmptyEditor();
         });
     });
@@ -718,294 +669,182 @@ function updateSectorDisplay() {
 function showEmptyEditor() {
     elements.editorTitle.textContent = 'Editar Setor';
     elements.sectorEditor.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-hand-pointer"></i>
-                    <p>Clique em um setor no menu para editar</p>
-                </div>
-            `;
+        <div class="empty-state">
+            <i class="fas fa-hand-pointer"></i>
+            <p>Clique em um setor no menu para editar</p>
+        </div>`;
 }
 
-function showSectorEditor(direction) {
+function showSectorEditor(directionId) {
     const menu = menus[currentMenu];
-    const sector = menu.sectors[direction];
-    const dirLabels = { top: 'Cima', right: 'Direita', bottom: 'Baixo', left: 'Esquerda' };
+    const dirs = getDirections(menu.sectorCount);
+    const dir = dirs.find(d => d.id === directionId);
+    if (!dir) return;
+    const sector = menu.sectors[directionId];
 
-    elements.editorTitle.textContent = `Setor: ${dirLabels[direction]}`;
+    elements.editorTitle.textContent = `Setor: ${DIR_ARROWS[directionId]} ${dir.label}`;
 
-    // Build submenu options
     const submenuOptions = Object.keys(menus)
         .filter(id => id !== currentMenu)
         .map(id => `<option value="submenu:${id}" ${sector.action === 'submenu:' + id ? 'selected' : ''}>${menus[id].name}</option>`)
         .join('');
 
     elements.sectorEditor.innerHTML = `
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-tag"></i> Rótulo (texto exibido)</label>
-                    <input type="text" class="form-input" id="sectorLabel" value="${sector.label || ''}" placeholder="Ex: WIN + TAB">
-                </div>
-
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label class="form-label"><i class="fas fa-bolt"></i> Tipo de Ação</label>
-                    <select class="form-select" id="actionType">
-                        <option value="hotkey" ${sector.actionType === 'hotkey' ? 'selected' : ''}>Atalho de Teclado</option>
-                        <option value="submenu" ${sector.actionType === 'submenu' ? 'selected' : ''}>Abrir Submenu</option>
-                        <option value="custom" ${sector.actionType === 'custom' ? 'selected' : ''}>Código Personalizado</option>
-                    </select>
-                </div>
-
-                <div id="actionConfig" style="margin-top: 1rem;"></div>
-
-                <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
-                    <button class="btn btn-primary" id="saveSector" style="flex: 1;">
-                        <i class="fas fa-check"></i> Salvar
-                    </button>
-                    <button class="btn btn-ghost" id="clearSector">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-tag"></i> Rótulo (texto exibido)</label>
+            <input type="text" class="form-input" id="sectorLabel" value="${sector.label || ''}" placeholder="Ex: WIN + TAB">
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label"><i class="fas fa-bolt"></i> Tipo de Ação</label>
+            <select class="form-select" id="actionType">
+                <option value="hotkey" ${sector.actionType === 'hotkey' ? 'selected' : ''}>Atalho de Teclado</option>
+                <option value="submenu" ${sector.actionType === 'submenu' ? 'selected' : ''}>Abrir Submenu</option>
+                <option value="custom" ${sector.actionType === 'custom' ? 'selected' : ''}>Código Personalizado</option>
+            </select>
+        </div>
+        <div id="actionConfig" style="margin-top:1rem;"></div>
+        <div style="margin-top:1.5rem; display:flex; gap:0.75rem;">
+            <button class="btn btn-primary" id="saveSector" style="flex:1;">
+                <i class="fas fa-check"></i> Salvar
+            </button>
+            <button class="btn btn-ghost" id="clearSector">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>`;
 
     const actionTypeSelect = document.getElementById('actionType');
     const actionConfig = document.getElementById('actionConfig');
 
     function updateActionConfig() {
         const type = actionTypeSelect.value;
-
         if (type === 'hotkey') {
             const existingKeys = parseHotkeyToKeys(sector.action);
             actionConfig.innerHTML = `
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-keyboard"></i> Construtor de Atalhos</label>
-                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                                Clique nas teclas abaixo para montar sua combinação. Você pode adicionar quantas teclas quiser!
-                            </p>
-
-                            <!-- Teclas selecionadas -->
-                            <div id="selectedKeys" class="selected-keys" style="
-                                min-height: 44px;
-                                padding: 0.5rem;
-                                background: var(--bg-tertiary);
-                                border: 2px dashed var(--border);
-                                border-radius: 10px;
-                                display: flex;
-                                flex-wrap: wrap;
-                                gap: 0.5rem;
-                                align-items: center;
-                                margin-bottom: 1rem;
-                            ">
-                                <span id="emptyKeysHint" style="color: var(--text-muted); font-size: 0.8rem; ${existingKeys.length > 0 ? 'display: none;' : ''}">
-                                    Clique nas teclas para adicionar...
-                                </span>
-                            </div>
-
-                            <!-- Modificadores -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <label class="form-label" style="font-size: 0.7rem; margin-bottom: 0.5rem;">Modificadores</label>
-                                <div class="quick-keys">
-                                    <button class="quick-key key-modifier" data-key="Ctrl" data-ahk="^">Ctrl</button>
-                                    <button class="quick-key key-modifier" data-key="Shift" data-ahk="+">Shift</button>
-                                    <button class="quick-key key-modifier" data-key="Alt" data-ahk="!">Alt</button>
-                                    <button class="quick-key key-modifier" data-key="Win" data-ahk="#">Win</button>
-                                </div>
-                            </div>
-
-                            <!-- Teclas de Função -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <label class="form-label" style="font-size: 0.7rem; margin-bottom: 0.5rem;">Teclas de Função</label>
-                                <div class="quick-keys">
-                                    <button class="quick-key key-function" data-key="F1" data-ahk="{F1}">F1</button>
-                                    <button class="quick-key key-function" data-key="F2" data-ahk="{F2}">F2</button>
-                                    <button class="quick-key key-function" data-key="F3" data-ahk="{F3}">F3</button>
-                                    <button class="quick-key key-function" data-key="F4" data-ahk="{F4}">F4</button>
-                                    <button class="quick-key key-function" data-key="F5" data-ahk="{F5}">F5</button>
-                                    <button class="quick-key key-function" data-key="F6" data-ahk="{F6}">F6</button>
-                                    <button class="quick-key key-function" data-key="F7" data-ahk="{F7}">F7</button>
-                                    <button class="quick-key key-function" data-key="F8" data-ahk="{F8}">F8</button>
-                                    <button class="quick-key key-function" data-key="F9" data-ahk="{F9}">F9</button>
-                                    <button class="quick-key key-function" data-key="F10" data-ahk="{F10}">F10</button>
-                                    <button class="quick-key key-function" data-key="F11" data-ahk="{F11}">F11</button>
-                                    <button class="quick-key key-function" data-key="F12" data-ahk="{F12}">F12</button>
-                                </div>
-                            </div>
-
-                            <!-- Setas e Navegação -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <label class="form-label" style="font-size: 0.7rem; margin-bottom: 0.5rem;">Navegação</label>
-                                <div class="quick-keys">
-                                    <button class="quick-key key-nav" data-key="←" data-ahk="{Left}">←</button>
-                                    <button class="quick-key key-nav" data-key="→" data-ahk="{Right}">→</button>
-                                    <button class="quick-key key-nav" data-key="↑" data-ahk="{Up}">↑</button>
-                                    <button class="quick-key key-nav" data-key="↓" data-ahk="{Down}">↓</button>
-                                    <button class="quick-key key-nav" data-key="Tab" data-ahk="{Tab}">Tab</button>
-                                    <button class="quick-key key-nav" data-key="Enter" data-ahk="{Enter}">Enter</button>
-                                    <button class="quick-key key-nav" data-key="Esc" data-ahk="{Escape}">Esc</button>
-                                    <button class="quick-key key-nav" data-key="Space" data-ahk="{Space}">Space</button>
-                                    <button class="quick-key key-nav" data-key="Backspace" data-ahk="{Backspace}">⌫</button>
-                                    <button class="quick-key key-nav" data-key="Delete" data-ahk="{Delete}">Del</button>
-                                    <button class="quick-key key-nav" data-key="Home" data-ahk="{Home}">Home</button>
-                                    <button class="quick-key key-nav" data-key="End" data-ahk="{End}">End</button>
-                                    <button class="quick-key key-nav" data-key="PgUp" data-ahk="{PgUp}">PgUp</button>
-                                    <button class="quick-key key-nav" data-key="PgDn" data-ahk="{PgDn}">PgDn</button>
-                                </div>
-                            </div>
-
-                            <!-- Letras -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <label class="form-label" style="font-size: 0.7rem; margin-bottom: 0.5rem;">Letras</label>
-                                <div class="quick-keys">
-                                    ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l =>
-                `<button class="quick-key key-letter" data-key="${l}" data-ahk="${l.toLowerCase()}">${l}</button>`
-            ).join('')}
-                                </div>
-                            </div>
-
-                            <!-- Números -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <label class="form-label" style="font-size: 0.7rem; margin-bottom: 0.5rem;">Números</label>
-                                <div class="quick-keys">
-                                    ${'0123456789'.split('').map(n =>
-                `<button class="quick-key key-number" data-key="${n}" data-ahk="${n}">${n}</button>`
-            ).join('')}
-                                </div>
-                            </div>
-
-                            <!-- Símbolos -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <label class="form-label" style="font-size: 0.7rem; margin-bottom: 0.5rem;">Símbolos e Outros</label>
-                                <div class="quick-keys">
-                                    <button class="quick-key key-symbol" data-key="+" data-ahk="{+}">+</button>
-                                    <button class="quick-key key-symbol" data-key="-" data-ahk="-">-</button>
-                                    <button class="quick-key key-symbol" data-key="*" data-ahk="*">*</button>
-                                    <button class="quick-key key-symbol" data-key="/" data-ahk="/">/</button>
-                                    <button class="quick-key key-symbol" data-key="." data-ahk=".">.</button>
-                                    <button class="quick-key key-symbol" data-key="," data-ahk=",">,</button>
-                                    <button class="quick-key key-symbol" data-key=";" data-ahk=";">;</button>
-                                    <button class="quick-key key-symbol" data-key="[" data-ahk="[">[</button>
-                                    <button class="quick-key key-symbol" data-key="]" data-ahk="]">]</button>
-                                    <button class="quick-key key-symbol" data-key="PrintScreen" data-ahk="{PrintScreen}">PrtSc</button>
-                                    <button class="quick-key key-symbol" data-key="Insert" data-ahk="{Insert}">Ins</button>
-                                    <button class="quick-key key-symbol" data-key="Pause" data-ahk="{Pause}">Pause</button>
-                                </div>
-                            </div>
-
-                            <!-- Ações -->
-                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                                <button class="btn btn-map" id="captureHotkeyBtn" style="flex: 1;">
-                                    <i class="fas fa-crosshairs"></i> Mapear Tecla
-                                </button>
-                                <button class="btn btn-ghost" id="clearAllKeys" style="flex: 1;">
-                                    <i class="fas fa-trash"></i> Limpar Tudo
-                                </button>
-                            </div>
-
-                            <!-- Código AHK gerado -->
-                            <div style="margin-top: 1rem; padding: 0.75rem; background: #0d1117; border-radius: 8px;">
-                                <label class="form-label" style="font-size: 0.65rem; color: #8b949e; margin-bottom: 0.5rem;">
-                                    <i class="fas fa-code"></i> Código AHK Gerado (editável)
-                                </label>
-                                <input type="text" class="form-input" id="ahkCodeOutput"
-                                    value="${sector.action || ''}"
-                                    placeholder='Send "^s"'
-                                    style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: #161b22; border-color: #30363d; color: #c9d1d9;">
-                            </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-keyboard"></i> Construtor de Atalhos</label>
+                    <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.75rem;">Clique nas teclas para montar a combinação.</p>
+                    <div id="selectedKeys" style="min-height:44px; padding:0.5rem; background:var(--bg-tertiary); border:2px dashed var(--border); border-radius:10px; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:1rem;">
+                        <span id="emptyKeysHint" style="color:var(--text-muted); font-size:0.8rem; ${existingKeys.length > 0 ? 'display:none;' : ''}">Clique nas teclas para adicionar...</span>
+                    </div>
+                    <div style="margin-bottom:0.75rem;">
+                        <label class="form-label" style="font-size:0.7rem; margin-bottom:0.5rem;">Modificadores</label>
+                        <div class="quick-keys">
+                            <button class="quick-key key-modifier" data-key="Ctrl" data-ahk="^">Ctrl</button>
+                            <button class="quick-key key-modifier" data-key="Shift" data-ahk="+">Shift</button>
+                            <button class="quick-key key-modifier" data-key="Alt" data-ahk="!">Alt</button>
+                            <button class="quick-key key-modifier" data-key="Win" data-ahk="#">Win</button>
                         </div>
-                    `;
+                    </div>
+                    <div style="margin-bottom:0.75rem;">
+                        <label class="form-label" style="font-size:0.7rem; margin-bottom:0.5rem;">Teclas de Função</label>
+                        <div class="quick-keys">
+                            ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<button class="quick-key key-function" data-key="F${n}" data-ahk="{F${n}}">F${n}</button>`).join('')}
+                        </div>
+                    </div>
+                    <div style="margin-bottom:0.75rem;">
+                        <label class="form-label" style="font-size:0.7rem; margin-bottom:0.5rem;">Navegação</label>
+                        <div class="quick-keys">
+                            <button class="quick-key key-nav" data-key="←" data-ahk="{Left}">←</button>
+                            <button class="quick-key key-nav" data-key="→" data-ahk="{Right}">→</button>
+                            <button class="quick-key key-nav" data-key="↑" data-ahk="{Up}">↑</button>
+                            <button class="quick-key key-nav" data-key="↓" data-ahk="{Down}">↓</button>
+                            <button class="quick-key key-nav" data-key="Tab" data-ahk="{Tab}">Tab</button>
+                            <button class="quick-key key-nav" data-key="Enter" data-ahk="{Enter}">Enter</button>
+                            <button class="quick-key key-nav" data-key="Esc" data-ahk="{Escape}">Esc</button>
+                            <button class="quick-key key-nav" data-key="Space" data-ahk="{Space}">Space</button>
+                            <button class="quick-key key-nav" data-key="⌫" data-ahk="{Backspace}">⌫</button>
+                            <button class="quick-key key-nav" data-key="Del" data-ahk="{Delete}">Del</button>
+                            <button class="quick-key key-nav" data-key="Home" data-ahk="{Home}">Home</button>
+                            <button class="quick-key key-nav" data-key="End" data-ahk="{End}">End</button>
+                            <button class="quick-key key-nav" data-key="PgUp" data-ahk="{PgUp}">PgUp</button>
+                            <button class="quick-key key-nav" data-key="PgDn" data-ahk="{PgDn}">PgDn</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:0.75rem;">
+                        <label class="form-label" style="font-size:0.7rem; margin-bottom:0.5rem;">Letras</label>
+                        <div class="quick-keys">
+                            ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => `<button class="quick-key key-letter" data-key="${l}" data-ahk="${l.toLowerCase()}">${l}</button>`).join('')}
+                        </div>
+                    </div>
+                    <div style="margin-bottom:0.75rem;">
+                        <label class="form-label" style="font-size:0.7rem; margin-bottom:0.5rem;">Números</label>
+                        <div class="quick-keys">
+                            ${'0123456789'.split('').map(n => `<button class="quick-key key-number" data-key="${n}" data-ahk="${n}">${n}</button>`).join('')}
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                        <button class="btn btn-map" id="captureHotkeyBtn" style="flex:1;"><i class="fas fa-crosshairs"></i> Mapear Tecla</button>
+                        <button class="btn btn-ghost" id="clearAllKeys" style="flex:1;"><i class="fas fa-trash"></i> Limpar</button>
+                    </div>
+                    <div style="margin-top:1rem; padding:0.75rem; background:#0d1117; border-radius:8px;">
+                        <label class="form-label" style="font-size:0.65rem; color:#8b949e; margin-bottom:0.5rem;"><i class="fas fa-code"></i> Código AHK Gerado</label>
+                        <input type="text" class="form-input" id="ahkCodeOutput" value="${sector.action || ''}" placeholder='Send "^s"' style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; background:#161b22; border-color:#30363d; color:#c9d1d9;">
+                    </div>
+                </div>`;
             setupHotkeyBuilder(existingKeys);
         } else if (type === 'submenu') {
             actionConfig.innerHTML = `
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-layer-group"></i> Selecionar Submenu</label>
-                            <select class="form-select" id="submenuSelect">
-                                <option value="">-- Escolha um submenu --</option>
-                                ${submenuOptions}
-                            </select>
-                        </div>
-                    `;
-        } else if (type === 'custom') {
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-layer-group"></i> Selecionar Submenu</label>
+                    <select class="form-select" id="submenuSelect">
+                        <option value="">-- Escolha um submenu --</option>
+                        ${submenuOptions}
+                    </select>
+                </div>`;
+        } else {
             actionConfig.innerHTML = `
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-code"></i> Código AHK</label>
-                            <textarea class="form-input" id="customCode" rows="4"
-                                placeholder='Ex: Run "notepad.exe"'
-                                style="font-family: 'JetBrains Mono', monospace; resize: vertical;">${sector.actionType === 'custom' ? sector.action : ''}</textarea>
-                        </div>
-                    `;
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-code"></i> Código AHK</label>
+                    <textarea class="form-input" id="customCode" rows="4" placeholder='Ex: Run "notepad.exe"' style="font-family:'JetBrains Mono',monospace; resize:vertical;">${sector.actionType === 'custom' ? sector.action : ''}</textarea>
+                </div>`;
         }
     }
 
     actionTypeSelect.addEventListener('change', updateActionConfig);
     updateActionConfig();
 
-    // Save button
     document.getElementById('saveSector').addEventListener('click', () => {
         const label = document.getElementById('sectorLabel').value;
         const type = actionTypeSelect.value;
         let action = '';
+        if (type === 'hotkey') action = document.getElementById('ahkCodeOutput').value;
+        else if (type === 'submenu') action = document.getElementById('submenuSelect').value;
+        else action = document.getElementById('customCode').value;
 
-        if (type === 'hotkey') {
-            const ahkCodeOutput = document.getElementById('ahkCodeOutput');
-            action = ahkCodeOutput.value;
-        } else if (type === 'submenu') {
-            const submenuSelect = document.getElementById('submenuSelect');
-            action = submenuSelect.value;
-        } else if (type === 'custom') {
-            action = document.getElementById('customCode').value;
-        }
-
-        menu.sectors[direction] = { label, action, actionType: type };
+        menu.sectors[directionId] = { label, action, actionType: type };
         updateSectorDisplay();
         updateSubmenuList();
         updateCodePreview();
-        showToast('Setor salvo com sucesso!');
+        showToast('Setor salvo!');
     });
 
-    // Clear button
     document.getElementById('clearSector').addEventListener('click', () => {
-        menu.sectors[direction] = { label: '', action: '', actionType: 'hotkey' };
+        menu.sectors[directionId] = emptySector();
         updateSectorDisplay();
         updateCodePreview();
-        showSectorEditor(direction);
+        showSectorEditor(directionId);
         showToast('Setor limpo!', 'warning');
     });
 }
 
-// Parse existing AHK code to extract keys for display
 function parseHotkeyToKeys(action) {
     if (!action || action.startsWith('submenu:')) return [];
-
     const match = action.match(/Send\s+"([^"]+)"/);
     if (!match) return [];
-
     const ahk = match[1];
     const keys = [];
-
-    // Extract modifiers
     if (ahk.includes('^')) keys.push({ key: 'Ctrl', ahk: '^', type: 'modifier' });
     if (ahk.includes('+') && !ahk.includes('{+}')) keys.push({ key: 'Shift', ahk: '+', type: 'modifier' });
     if (ahk.includes('!')) keys.push({ key: 'Alt', ahk: '!', type: 'modifier' });
     if (ahk.includes('#')) keys.push({ key: 'Win', ahk: '#', type: 'modifier' });
-
-    // Extract special keys in braces
     const braceMatches = ahk.match(/\{[^}]+\}/g) || [];
     braceMatches.forEach(m => {
         const keyName = m.replace(/[{}]/g, '');
-        const displayMap = {
-            'Left': '←', 'Right': '→', 'Up': '↑', 'Down': '↓',
-            'Tab': 'Tab', 'Enter': 'Enter', 'Escape': 'Esc', 'Space': 'Space',
-            'Backspace': '⌫', 'Delete': 'Del', 'Home': 'Home', 'End': 'End',
-            'PgUp': 'PgUp', 'PgDn': 'PgDn', 'PrintScreen': 'PrtSc', 'Insert': 'Ins', 'Pause': 'Pause'
-        };
+        const displayMap = { 'Left':'←','Right':'→','Up':'↑','Down':'↓','Tab':'Tab','Enter':'Enter','Escape':'Esc','Space':'Space','Backspace':'⌫','Delete':'Del','Home':'Home','End':'End','PgUp':'PgUp','PgDn':'PgDn','PrintScreen':'PrtSc','Insert':'Ins','Pause':'Pause' };
         keys.push({ key: displayMap[keyName] || keyName, ahk: m, type: 'special' });
     });
-
-    // Extract regular letters/numbers (after removing modifiers and braced content)
     let remaining = ahk.replace(/[\^!#+]/g, '').replace(/\{[^}]+\}/g, '');
-    remaining.split('').forEach(char => {
-        if (char.trim()) {
-            keys.push({ key: char.toUpperCase(), ahk: char, type: 'letter' });
-        }
-    });
-
+    remaining.split('').forEach(char => { if (char.trim()) keys.push({ key: char.toUpperCase(), ahk: char, type: 'letter' }); });
     return keys;
 }
 
@@ -1013,286 +852,130 @@ function setupHotkeyBuilder(existingKeys = []) {
     const selectedKeysContainer = document.getElementById('selectedKeys');
     const emptyHint = document.getElementById('emptyKeysHint');
     const ahkOutput = document.getElementById('ahkCodeOutput');
-    const clearAllBtn = document.getElementById('clearAllKeys');
-
     let selectedKeys = [...existingKeys];
 
     function updateDisplay() {
-        // Clear all chips and plus signs
-        const chips = selectedKeysContainer.querySelectorAll('.key-chip');
-        const plusSigns = selectedKeysContainer.querySelectorAll('.key-plus');
-        chips.forEach(c => c.remove());
-        plusSigns.forEach(p => p.remove());
-
+        selectedKeysContainer.querySelectorAll('.key-chip, .key-plus').forEach(el => el.remove());
         if (selectedKeys.length === 0) {
             emptyHint.style.display = '';
         } else {
             emptyHint.style.display = 'none';
-
             selectedKeys.forEach((keyData, index) => {
                 const chip = document.createElement('span');
                 chip.className = 'key-chip';
-                chip.style.cssText = `
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 0.375rem;
-                            padding: 0.375rem 0.625rem;
-                            background: var(--accent);
-                            color: white;
-                            border-radius: 6px;
-                            font-size: 0.75rem;
-                            font-weight: 600;
-                            font-family: 'JetBrains Mono', monospace;
-                        `;
-                chip.innerHTML = `
-                            ${keyData.key}
-                            <button class="remove-key" data-index="${index}" style="
-                                background: none;
-                                border: none;
-                                color: rgba(255,255,255,0.7);
-                                cursor: pointer;
-                                padding: 0;
-                                font-size: 0.875rem;
-                                line-height: 1;
-                            ">&times;</button>
-                        `;
+                chip.style.cssText = 'display:inline-flex;align-items:center;gap:0.375rem;padding:0.375rem 0.625rem;background:var(--accent);color:white;border-radius:6px;font-size:0.75rem;font-weight:600;font-family:"JetBrains Mono",monospace;';
+                chip.innerHTML = `${keyData.key}<button class="remove-key" data-index="${index}" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:0;font-size:0.875rem;">&times;</button>`;
                 selectedKeysContainer.appendChild(chip);
             });
-
-            // Add plus signs between chips
-            const allChips = selectedKeysContainer.querySelectorAll('.key-chip');
-            allChips.forEach((chip, i) => {
-                if (i < allChips.length - 1) {
+            selectedKeysContainer.querySelectorAll('.key-chip').forEach((chip, i, arr) => {
+                if (i < arr.length - 1) {
                     const plus = document.createElement('span');
                     plus.className = 'key-plus';
-                    plus.style.cssText = 'color: var(--text-muted); font-weight: bold;';
+                    plus.style.cssText = 'color:var(--text-muted);font-weight:bold;';
                     plus.textContent = '+';
                     chip.after(plus);
                 }
             });
         }
-
-        // Update AHK output
         updateAHKOutput();
-
-        // Add remove handlers
         selectedKeysContainer.querySelectorAll('.remove-key').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const idx = parseInt(btn.dataset.index);
-                selectedKeys.splice(idx, 1);
+                selectedKeys.splice(parseInt(btn.dataset.index), 1);
                 updateDisplay();
             });
         });
     }
 
     function updateAHKOutput() {
-        if (selectedKeys.length === 0) {
-            ahkOutput.value = '';
-            return;
-        }
-
-        // Build AHK string: modifiers first, then other keys
+        if (selectedKeys.length === 0) { ahkOutput.value = ''; return; }
         const modifiers = selectedKeys.filter(k => k.type === 'modifier').map(k => k.ahk).join('');
-        const otherKeys = selectedKeys.filter(k => k.type !== 'modifier').map(k => k.ahk).join('');
-
-        ahkOutput.value = `Send "${modifiers}${otherKeys}"`;
+        const others = selectedKeys.filter(k => k.type !== 'modifier').map(k => k.ahk).join('');
+        ahkOutput.value = `Send "${modifiers}${others}"`;
     }
 
-    // Add key click handlers
     document.querySelectorAll('#actionConfig .quick-key').forEach(btn => {
         btn.addEventListener('click', () => {
             const keyData = {
-                key: btn.dataset.key,
-                ahk: btn.dataset.ahk,
+                key: btn.dataset.key, ahk: btn.dataset.ahk,
                 type: btn.classList.contains('key-modifier') ? 'modifier' :
-                    btn.classList.contains('key-function') ? 'function' :
-                        btn.classList.contains('key-nav') ? 'nav' :
-                            btn.classList.contains('key-letter') ? 'letter' :
-                                btn.classList.contains('key-number') ? 'number' : 'symbol'
+                      btn.classList.contains('key-function') ? 'function' :
+                      btn.classList.contains('key-nav') ? 'nav' :
+                      btn.classList.contains('key-letter') ? 'letter' : 'symbol'
             };
-
-            // For modifiers, toggle them
             if (keyData.type === 'modifier') {
-                const existingIndex = selectedKeys.findIndex(k => k.key === keyData.key);
-                if (existingIndex >= 0) {
-                    selectedKeys.splice(existingIndex, 1);
-                } else {
-                    // Insert at beginning (modifiers first)
+                const idx = selectedKeys.findIndex(k => k.key === keyData.key);
+                if (idx >= 0) selectedKeys.splice(idx, 1);
+                else {
                     const firstNonMod = selectedKeys.findIndex(k => k.type !== 'modifier');
-                    if (firstNonMod >= 0) {
-                        selectedKeys.splice(firstNonMod, 0, keyData);
-                    } else {
-                        selectedKeys.push(keyData);
-                    }
+                    if (firstNonMod >= 0) selectedKeys.splice(firstNonMod, 0, keyData);
+                    else selectedKeys.push(keyData);
                 }
             } else {
-                // For other keys, just add them
                 selectedKeys.push(keyData);
             }
-
             updateDisplay();
         });
     });
 
-    // Clear all button
-    clearAllBtn.addEventListener('click', () => {
-        selectedKeys = [];
-        updateDisplay();
-    });
+    document.getElementById('clearAllKeys').addEventListener('click', () => { selectedKeys = []; updateDisplay(); });
 
-    // Capture hotkey button
-    const captureHotkeyBtn = document.getElementById('captureHotkeyBtn');
-    if (captureHotkeyBtn) {
-        captureHotkeyBtn.addEventListener('click', () => {
+    const captureBtn = document.getElementById('captureHotkeyBtn');
+    if (captureBtn) {
+        captureBtn.addEventListener('click', () => {
             openCaptureModal('hotkey', (result) => {
-                // Convert captured data to selected keys format
                 selectedKeys = [];
-
-                // Add modifiers first
-                result.modifiers.forEach(mod => {
-                    const modMap = {
-                        'Ctrl': { key: 'Ctrl', ahk: '^', type: 'modifier' },
-                        'Shift': { key: 'Shift', ahk: '+', type: 'modifier' },
-                        'Alt': { key: 'Alt', ahk: '!', type: 'modifier' },
-                        'Win': { key: 'Win', ahk: '#', type: 'modifier' }
-                    };
-                    if (modMap[mod]) selectedKeys.push(modMap[mod]);
-                });
-
-                // Add the main key
+                const modMap = { 'Ctrl':{key:'Ctrl',ahk:'^',type:'modifier'}, 'Shift':{key:'Shift',ahk:'+',type:'modifier'}, 'Alt':{key:'Alt',ahk:'!',type:'modifier'}, 'Win':{key:'Win',ahk:'#',type:'modifier'} };
+                result.modifiers.forEach(mod => { if (modMap[mod]) selectedKeys.push(modMap[mod]); });
                 if (result.key) {
-                    const displayKey = getKeyDisplayName(result.key);
-                    const ahkKey = result.isMouseButton ? result.ahkCode : getAHKKey(result.key);
-                    selectedKeys.push({
-                        key: displayKey,
-                        ahk: ahkKey,
-                        type: 'captured'
-                    });
+                    selectedKeys.push({ key: getKeyDisplayName(result.key), ahk: result.isMouseButton ? result.ahkCode : getAHKKey(result.key), type: 'captured' });
                 }
-
                 updateDisplay();
                 showToast('Teclas capturadas!');
             });
         });
     }
 
-    // Initialize display with existing keys
     updateDisplay();
 }
-
-function getHotkeyDisplay(action) {
-    if (!action || action.startsWith('submenu:')) return '';
-
-    // Parse Send command
-    const match = action.match(/Send\s+"([^"]+)"/);
-    if (!match) return action;
-
-    let keys = match[1];
-    // Convert AHK syntax to display
-    keys = keys.replace(/\^/g, 'Ctrl+');
-    keys = keys.replace(/!/g, 'Alt+');
-    keys = keys.replace(/\+/g, 'Shift+');
-    keys = keys.replace(/#/g, 'Win+');
-    keys = keys.replace(/\{(\w+)\}/g, '$1');
-    keys = keys.replace(/\{(Left|Right|Up|Down)\}/g, (m, p) => {
-        const arrows = { Left: '←', Right: '→', Up: '↑', Down: '↓' };
-        return arrows[p] || p;
-    });
-
-    return keys;
-}
-
-function convertDisplayToAHK(display) {
-    if (!display) return '';
-
-    let ahk = display;
-    ahk = ahk.replace(/Ctrl\+/gi, '^');
-    ahk = ahk.replace(/Alt\+/gi, '!');
-    ahk = ahk.replace(/Shift\+/gi, '+');
-    ahk = ahk.replace(/Win\+/gi, '#');
-    ahk = ahk.replace(/←/g, '{Left}');
-    ahk = ahk.replace(/→/g, '{Right}');
-    ahk = ahk.replace(/↑/g, '{Up}');
-    ahk = ahk.replace(/↓/g, '{Down}');
-    ahk = ahk.replace(/Space/gi, '{Space}');
-    ahk = ahk.replace(/Tab/gi, '{Tab}');
-    ahk = ahk.replace(/Enter/gi, '{Enter}');
-    ahk = ahk.replace(/Escape/gi, '{Escape}');
-    ahk = ahk.replace(/Backspace/gi, '{Backspace}');
-    ahk = ahk.replace(/Delete/gi, '{Delete}');
-    ahk = ahk.replace(/(F\d+)/gi, '{$1}');
-
-    // Wrap remaining keys
-    const lastPart = ahk.match(/[^^!+#]+$/);
-    if (lastPart && !lastPart[0].startsWith('{')) {
-        const key = lastPart[0];
-        if (key.length === 1) {
-            // Single letter, just use as is
-        } else {
-            ahk = ahk.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'), `{${key}}`);
-        }
-    }
-
-    return `Send "${ahk}"`;
-}
-
-// Sector click handlers
-[elements.sectorTop, elements.sectorRight, elements.sectorBottom, elements.sectorLeft].forEach(sector => {
-    sector.addEventListener('click', () => {
-        const direction = sector.dataset.direction;
-        selectedSector = direction;
-        updateSectorDisplay();
-        showSectorEditor(direction);
-    });
-});
 
 // =============================================
 // Submenu Management
 // =============================================
 function updateSubmenuList() {
     const submenus = Object.keys(menus).filter(id => id !== 'main');
-
     if (submenus.length === 0) {
-        elements.submenuList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-layer-group"></i>
-                        <p>Nenhum submenu criado</p>
-                    </div>
-                `;
+        elements.submenuList.innerHTML = `<div class="empty-state"><i class="fas fa-layer-group"></i><p>Nenhum submenu criado</p></div>`;
         return;
     }
-
     elements.submenuList.innerHTML = submenus.map(id => {
         const menu = menus[id];
-        const sectors = Object.values(menu.sectors).filter(s => s.action).length;
+        const dirs = getDirections(menu.sectorCount);
+        const active = dirs.filter(d => menu.sectors[d.id] && menu.sectors[d.id].action).length;
         return `
-                    <div class="menu-item" data-id="${id}">
-                        <div class="menu-item-info">
-                            <div class="menu-item-icon">
-                                <i class="fas fa-folder"></i>
-                            </div>
-                            <div class="menu-item-text">
-                                <h4>${menu.name}</h4>
-                                <span>${sectors} ações configuradas</span>
-                            </div>
-                        </div>
-                        <div class="menu-item-actions">
-                            <button class="menu-item-btn edit-submenu" data-id="${id}"><i class="fas fa-pen"></i></button>
-                            <button class="menu-item-btn enter-submenu" data-id="${id}"><i class="fas fa-arrow-right"></i></button>
-                            <button class="menu-item-btn danger delete-submenu" data-id="${id}"><i class="fas fa-trash"></i></button>
-                        </div>
+            <div class="menu-item" data-id="${id}">
+                <div class="menu-item-info">
+                    <div class="menu-item-icon"><i class="fas fa-folder"></i></div>
+                    <div class="menu-item-text">
+                        <h4>${menu.name}</h4>
+                        <span>${menu.sectorCount} setores · ${active} ações</span>
                     </div>
-                `;
+                </div>
+                <div class="menu-item-actions">
+                    <button class="menu-item-btn edit-submenu" data-id="${id}"><i class="fas fa-pen"></i></button>
+                    <button class="menu-item-btn enter-submenu" data-id="${id}"><i class="fas fa-arrow-right"></i></button>
+                    <button class="menu-item-btn danger delete-submenu" data-id="${id}"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
     }).join('');
 
-    // Add event listeners
     document.querySelectorAll('.enter-submenu').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             currentMenu = btn.dataset.id;
             selectedSector = null;
-            updateSectorDisplay();
+            syncSectorCountBtns();
+            renderRadialPreview();
             showEmptyEditor();
         });
     });
@@ -1314,39 +997,25 @@ function updateSubmenuList() {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const id = btn.dataset.id;
-
-            // Check if any sector references this submenu
             let inUse = false;
-            Object.values(menus).forEach(menu => {
-                Object.values(menu.sectors).forEach(sector => {
-                    if (sector.action === 'submenu:' + id) {
-                        inUse = true;
-                    }
-                });
-            });
-
-            if (inUse) {
-                showToast('Este submenu está em uso! Remova as referências primeiro.', 'error');
-                return;
-            }
-
+            Object.values(menus).forEach(menu => Object.values(menu.sectors).forEach(sector => { if (sector.action === 'submenu:' + id) inUse = true; }));
+            if (inUse) { showToast('Submenu em uso! Remova as referências.', 'error'); return; }
             delete menus[id];
-            if (currentMenu === id) {
-                currentMenu = 'main';
-            }
+            if (currentMenu === id) currentMenu = 'main';
             updateSubmenuList();
-            updateSectorDisplay();
+            syncSectorCountBtns();
+            renderRadialPreview();
             updateCodePreview();
             showToast('Submenu removido!', 'warning');
         });
     });
 
-    // Click to enter
     document.querySelectorAll('.menu-item').forEach(item => {
         item.addEventListener('click', () => {
             currentMenu = item.dataset.id;
             selectedSector = null;
-            updateSectorDisplay();
+            syncSectorCountBtns();
+            renderRadialPreview();
             showEmptyEditor();
         });
     });
@@ -1361,47 +1030,21 @@ elements.addSubmenuBtn.addEventListener('click', () => {
     elements.submenuModal.classList.add('active');
 });
 
-elements.closeSubmenuModal.addEventListener('click', () => {
-    elements.submenuModal.classList.remove('active');
-});
-
-elements.cancelSubmenu.addEventListener('click', () => {
-    elements.submenuModal.classList.remove('active');
-});
+elements.closeSubmenuModal.addEventListener('click', () => elements.submenuModal.classList.remove('active'));
+elements.cancelSubmenu.addEventListener('click', () => elements.submenuModal.classList.remove('active'));
 
 elements.saveSubmenu.addEventListener('click', () => {
     const name = elements.submenuName.value.trim();
     let id = elements.submenuId.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-
-    if (!name) {
-        showToast('Digite um nome para o submenu', 'error');
-        return;
-    }
-
-    if (!id) {
-        id = name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 10);
-    }
+    if (!name) { showToast('Digite um nome', 'error'); return; }
+    if (!id) id = name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 10);
 
     if (editingSubmenuId) {
         menus[editingSubmenuId].name = name;
     } else {
-        if (menus[id]) {
-            showToast('Já existe um menu com esse ID', 'error');
-            return;
-        }
-
-        menus[id] = {
-            id,
-            name,
-            sectors: {
-                top: { label: '', action: '', actionType: 'hotkey' },
-                right: { label: '', action: '', actionType: 'hotkey' },
-                bottom: { label: '', action: '', actionType: 'hotkey' },
-                left: { label: '', action: '', actionType: 'hotkey' }
-            }
-        };
+        if (menus[id]) { showToast('ID já existe', 'error'); return; }
+        menus[id] = { id, name, sectorCount: 4, sectors: emptyAllSectors() };
     }
-
     elements.submenuModal.classList.remove('active');
     updateSubmenuList();
     updateCodePreview();
@@ -1411,17 +1054,9 @@ elements.saveSubmenu.addEventListener('click', () => {
 // =============================================
 // Reset
 // =============================================
-elements.resetBtn.addEventListener('click', () => {
-    elements.resetModal.classList.add('active');
-});
-
-elements.closeResetModal.addEventListener('click', () => {
-    elements.resetModal.classList.remove('active');
-});
-
-elements.cancelReset.addEventListener('click', () => {
-    elements.resetModal.classList.remove('active');
-});
+elements.resetBtn.addEventListener('click', () => elements.resetModal.classList.add('active'));
+elements.closeResetModal.addEventListener('click', () => elements.resetModal.classList.remove('active'));
+elements.cancelReset.addEventListener('click', () => elements.resetModal.classList.remove('active'));
 
 elements.confirmReset.addEventListener('click', () => {
     config = JSON.parse(JSON.stringify(defaultConfig));
@@ -1429,39 +1064,39 @@ elements.confirmReset.addEventListener('click', () => {
     currentMenu = 'main';
     selectedSector = null;
 
-    // Reset UI
-    elements.menuRadius.value = 110;
-    elements.deadzone.value = 30;
+    elements.menuRadius.value = defaultConfig.radius;
+    elements.deadzone.value = defaultConfig.deadzone;
     elements.menuOpacity.value = 92;
-    elements.cornerRadius.value = 16;
-    elements.fadeIn.value = 120;
-    elements.fadeOut.value = 120;
-    elements.fadeSteps.value = 12;
-    elements.scaleActive.value = 1.12;
-    elements.submenuHoldTime.value = 1500;
-    elements.submenuHoldTimeRange.value = 1500;
-    elements.holdTimeDisplay.textContent = '1.5 segundos';
-    elements.bgColor.value = '#1E1E1E';
-    elements.bgColorText.value = '1E1E1E';
-    elements.itemColor.value = '#333333';
-    elements.itemColorText.value = '333333';
-    elements.accentColor.value = '#1F6FEB';
-    elements.accentColorText.value = '1F6FEB';
-    elements.textColor.value = '#FFFFFF';
-    elements.textColorText.value = 'FFFFFF';
+    elements.cornerRadius.value = defaultConfig.cornerRadius;
+    elements.fadeIn.value = defaultConfig.fadeIn;
+    elements.fadeOut.value = defaultConfig.fadeOut;
+    elements.fadeSteps.value = defaultConfig.fadeSteps;
+    elements.scaleActive.value = defaultConfig.scaleActive;
+    elements.submenuHoldTime.value = defaultConfig.submenuHoldTime;
+    elements.submenuHoldTimeRange.value = defaultConfig.submenuHoldTime;
+    updateHoldTimeDisplay(defaultConfig.submenuHoldTime);
+    elements.bgColor.value = '#' + defaultConfig.colors.bg;
+    elements.bgColorText.value = defaultConfig.colors.bg;
+    elements.itemColor.value = '#' + defaultConfig.colors.item;
+    elements.itemColorText.value = defaultConfig.colors.item;
+    elements.accentColor.value = '#' + defaultConfig.colors.itemActive;
+    elements.accentColorText.value = defaultConfig.colors.itemActive;
+    elements.textColor.value = '#' + defaultConfig.colors.text;
+    elements.textColorText.value = defaultConfig.colors.text;
     elements.highlightToggleSwitch.classList.add('active');
 
     document.querySelectorAll('.trigger-option').forEach(o => {
         o.classList.toggle('selected', o.dataset.value === 'MButton');
         o.querySelector('input').checked = o.dataset.value === 'MButton';
     });
+    elements.currentTriggerDisplay.textContent = 'MButton';
 
-    updateSectorDisplay();
+    syncSectorCountBtns();
+    renderRadialPreview();
     updateSubmenuList();
     updateCodePreview();
     updateVisualPreview();
     showEmptyEditor();
-
     elements.resetModal.classList.remove('active');
     showToast('Configurações resetadas!', 'warning');
 });
@@ -1469,121 +1104,179 @@ elements.confirmReset.addEventListener('click', () => {
 // =============================================
 // Code Generation
 // =============================================
+function generateAHKConditions(dirs) {
+    const lines = [];
+    let wrapsDir = dirs.find(d => d.wraps);
+    let normalDirs = dirs.filter(d => !d.wraps);
+
+    normalDirs.forEach((dir, i) => {
+        const kw = i === 0 && !wrapsDir ? 'if' : (i === 0 ? 'if' : 'else if');
+        // For last normal dir with no wraps, use else? Only if there's no wraps dir.
+        if (!wrapsDir && i === normalDirs.length - 1) {
+            lines.push(`        } else {                                          ; ${dir.label}\n            action := "${dir.ahkId}"\n            info.Text := "${dir.label}"`);
+        } else {
+            const cond = `theta >= ${dir.minA} && theta < ${dir.maxA}`;
+            lines.push(`        } ${i === 0 ? 'if' : 'else if'} (${cond}) {          ; ${dir.label}\n            action := "${dir.ahkId}"\n            info.Text := "${dir.label}"`);
+        }
+    });
+
+    if (wrapsDir) {
+        lines.push(`        } else if (theta >= ${wrapsDir.minA} || theta < ${wrapsDir.maxA}) { ; ${wrapsDir.label}\n            action := "${wrapsDir.ahkId}"\n            info.Text := "${wrapsDir.label}"`);
+        // Last dir without wraps that wasn't included yet
+        const lastNorm = normalDirs[normalDirs.length - 1];
+        if (lastNorm && lines.filter(l => l.includes(lastNorm.ahkId)).length > 0) {
+            // already added
+        }
+    }
+
+    return lines.join('\n') + '\n        }';
+}
+
+function generateHighlightCalls(dirs, menuObj) {
+    const lines = [];
+    const ctrlListStr = dirs.map(d => `${d.id}Ctrl`).join(', ');
+    dirs.forEach((dir, i) => {
+        const sector = menuObj.sectors[dir.id];
+        const sLabel = (sector && sector.label) ? sector.label : dir.label;
+        const kw = i === 0 ? 'if' : 'else if';
+        let cond;
+        if (dir.wraps) cond = `action = "${dir.ahkId}"`;
+        else cond = `action = "${dir.ahkId}"`;
+        lines.push(`        ${kw} (action = "${dir.ahkId}") {\n            info.Text := "${sLabel}"\n            lastSel := HighlightSector("${dir.ahkId}", [${ctrlListStr}], lastSel)\n        }`);
+    });
+    return lines.join(' else ');
+}
+
+function sectorPositions(sectorCount, radius) {
+    const dirs = getDirections(sectorCount);
+    const rSector = Math.round(radius * 0.62);
+    const sW = 90, sH = 28;
+    return dirs.map(dir => {
+        const rad = dir.angle * Math.PI / 180;
+        const sx = Math.round(radius + rSector * Math.cos(rad)) - Math.round(sW / 2);
+        const sy = Math.round(radius - rSector * Math.sin(rad)) - Math.round(sH / 2);
+        return { dir, sx, sy, sW, sH };
+    });
+}
+
 function generateAHKCode() {
     const c = config;
     const clr = c.colors;
+    const mainMenu = menus.main;
+    const mainDirs = getDirections(mainMenu.sectorCount);
+    const mainPositions = sectorPositions(mainMenu.sectorCount, c.radius);
 
-    // Build submenu function calls
     const submenuFunctions = Object.keys(menus)
         .filter(id => id !== 'main')
         .map(id => generateSubmenuFunction(id))
         .join('\n\n');
 
-    // Get main menu sector actions
-    const mainMenu = menus.main;
-
-    // Identifica quais setores são submenus
-    const submenuSectors = [];
-    ['top', 'right', 'bottom', 'left'].forEach(dir => {
-        if (mainMenu.sectors[dir].actionType === 'submenu') {
-            submenuSectors.push(dir);
-        }
-    });
-
     const getAction = (sector) => {
-        if (!sector.action) return `; Nenhuma ação configurada`;
+        if (!sector || !sector.action) return `; Nenhuma ação configurada`;
         if (sector.actionType === 'submenu') {
-            const submenuId = sector.action.replace('submenu:', '');
-            const funcName = 'Show' + submenuId.charAt(0).toUpperCase() + submenuId.slice(1) + 'Menu';
-            return `${funcName}(cx, cy)`;
+            const sid = sector.action.replace('submenu:', '');
+            return `Show${sid.charAt(0).toUpperCase() + sid.slice(1)}Menu(cx, cy)`;
         }
         return sector.action;
     };
 
-    // Gera código para verificação de submenus com hold timer
-    const holdTime = c.submenuHoldTime || 1500;
-    const generateSubmenuHoldCheck = (direction, submenuId) => {
-        const funcName = 'Show' + submenuId.charAt(0).toUpperCase() + submenuId.slice(1) + 'Menu';
-        const dirMap = { top: 'Top', right: 'Right', bottom: 'Bottom', left: 'Left' };
+    // Hold timer init for submenu sectors
+    const submenuSectors = mainDirs.filter(d => mainMenu.sectors[d.id] && mainMenu.sectors[d.id].actionType === 'submenu');
+    const holdInits = submenuSectors.map(d => `holdTime${d.ahkId} := 0`).join('\n    ');
+    const holdReset = submenuSectors.map(d => `holdTime${d.ahkId} := 0`).join('\n            ');
+
+    const holdChecks = submenuSectors.map(dir => {
+        const sector = mainMenu.sectors[dir.id];
+        const sid = sector.action.replace('submenu:', '');
+        const fnName = `Show${sid.charAt(0).toUpperCase() + sid.slice(1)}Menu`;
         return `
-            ; Verifica hold para submenu ${submenuId}
-            if (action = "${dirMap[direction]}" && lastSel = "${dirMap[direction]}") {
-                holdTime${dirMap[direction]} += 10
-                if (holdTime${dirMap[direction]} >= ${holdTime}) {
-                    ; Fecha menu principal
+            ; Hold para abrir submenu: ${sid}
+            if (action = "${dir.ahkId}" && lastSel = "${dir.ahkId}") {
+                holdTime${dir.ahkId} += 10
+                if (holdTime${dir.ahkId} >= ${c.submenuHoldTime}) {
                     FadeTo(menuGui.Hwnd, Config.Alpha, 1, Config.Anim.FadeOutMs, Config.Anim.Steps)
                     FadeTo(shadow.Hwnd, Config.Theme.ShadowAlpha, 1, Config.Anim.FadeOutMs, Config.Anim.Steps)
                     try menuGui.Destroy()
                     try shadow.Gui.Destroy()
-                    ; Abre submenu
-                    ${funcName}(cx, cy)
+                    ${fnName}(cx, cy)
                     return
                 }
-                ; Mostra progresso do hold
-                progress := Round(holdTime${dirMap[direction]} / ${holdTime} * 100)
-                info.Text := "${mainMenu.sectors[direction].label} (" progress "%)"
+                progress := Round(holdTime${dir.ahkId} / ${c.submenuHoldTime} * 100)
+                info.Text := "${sector.label} (" progress "%)"
             } else {
-                holdTime${dirMap[direction]} := 0
+                holdTime${dir.ahkId} := 0
             }`;
-    };
-
-    // Inicialização dos holdTimers
-    const holdTimerInits = submenuSectors.map(dir => {
-        const dirMap = { top: 'Top', right: 'Right', bottom: 'Bottom', left: 'Left' };
-        return `holdTime${dirMap[dir]} := 0`;
-    }).join('\n    ');
-
-    // Checks de hold para submenus
-    const holdChecks = submenuSectors.map(dir => {
-        const submenuId = mainMenu.sectors[dir].action.replace('submenu:', '');
-        return generateSubmenuHoldCheck(dir, submenuId);
     }).join('\n');
 
-    const code = `#Requires AutoHotkey v2.0
+    // Build sector control declarations
+    const ctrlDecls = mainPositions.map(p => {
+        const sector = mainMenu.sectors[p.dir.id];
+        const arrow = DIR_ARROWS[p.dir.id] || '';
+        const lbl = (sector && sector.label) ? sector.label : p.dir.label;
+        return `    ${p.dir.id}Ctrl := AddSector("${arrow} ${lbl}", ${p.sx}, ${p.sy}, "${p.dir.ahkId}", menuGui)`;
+    }).join('\n');
+
+    const ctrlList = mainDirs.map(d => `${d.id}Ctrl`).join(', ');
+
+    // Build direction detection
+    const dirDetect = buildDetectionBlock(mainDirs, mainMenu);
+
+    // Build action execution
+    const actionExec = mainDirs.map((dir, i) => {
+        const sector = mainMenu.sectors[dir.id];
+        const kw = i === 0 ? 'if' : 'else if';
+        return `    ${kw} (action = "${dir.ahkId}") {\n        ${getAction(sector)}\n    }`;
+    }).join(' ');
+
+    // Order map for HighlightSector
+    const orderMap = mainDirs.map((d, i) => `"${d.ahkId}", ${i + 1}`).join(', ');
+
+    const size = c.radius * 2;
+
+    return `#Requires AutoHotkey v2.0
 #SingleInstance Force
 CoordMode("Mouse", "Screen")
 
-; =========================
+; =====================================
 ; Configurações
-; =========================
+; =====================================
 global Config := {
     Radius: ${c.radius}
   , Deadzone: ${c.deadzone}
-  , Alpha: ${c.opacity}                   ; opacidade final do menu (0-255)
-  , UseWinSnap: true
-  , UseHighlight: ${c.useHighlight ? 'true' : 'false'}       ; usar cor de destaque
+  , Alpha: ${c.opacity}
+  , UseHighlight: ${c.useHighlight ? 'true' : 'false'}
   , Font: { Name: "Segoe UI", Size: 10 }
   , Theme: {
         Bg: "${clr.bg}"
       , Item: "${clr.item}"
-      , ItemActive: "${clr.itemActive}"     ; cor destaque
+      , ItemActive: "${clr.itemActive}"
       , Text: "${clr.text}"
       , Hint: "${clr.hint}"
-      , Aim:  "${clr.aim}"           ; cor da seta/mira neutra
-      , AimActive: "${clr.aimActive}"      ; cor da seta/mira ativa
-      , Shadow: "${clr.shadow}"         ; base da sombra (preto)
-      , ShadowAlpha: ${clr.shadowAlpha}         ; opacidade da sombra
-      , AcrylicAlpha: ${clr.acrylicAlpha}        ; alpha do Acrylic (0-255)
+      , Aim: "${clr.aim}"
+      , AimActive: "${clr.aimActive}"
+      , Shadow: "${clr.shadow}"
+      , ShadowAlpha: ${clr.shadowAlpha}
+      , AcrylicAlpha: ${clr.acrylicAlpha}
     }
   , Anim: {
-        FadeInMs: ${c.fadeIn}            ; duração do fade-in
-      , FadeOutMs: ${c.fadeOut}           ; duração do fade-out
-      , Steps: ${c.fadeSteps}                ; passos do fade
-      , ScaleActive: ${c.scaleActive}        ; escala do botão ativo
+        FadeInMs: ${c.fadeIn}
+      , FadeOutMs: ${c.fadeOut}
+      , Steps: ${c.fadeSteps}
+      , ScaleActive: ${c.scaleActive}
     }
   , Shape: {
-        CornerRadius: ${c.cornerRadius}         ; raio dos cantos
-      , ShadowOffset: 8          ; deslocamento da sombra (px)
-      , ShadowExpand: 12         ; "expande" sombra para além da borda (px)
+        CornerRadius: ${c.cornerRadius}
+      , ShadowOffset: 8
+      , ShadowExpand: 12
     }
 }
 
-; Hotkey: ${c.trigger} abre o radial
+; Gatilho: ${c.trigger}
 ${c.trigger}::RadialMenu()
 
-; =========================
-; Radial Menu
-; =========================
+; =====================================
+; Radial Menu Principal
+; =====================================
 RadialMenu() {
     global Config
 
@@ -1593,10 +1286,8 @@ RadialMenu() {
     x := cx - Config.Radius
     y := cy - Config.Radius
 
-    ; --- sombra (atrás, click-through)
     shadow := CreateShadowGui(x, y, size, size)
 
-    ; --- GUI principal
     menuGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
     menuGui.BackColor := Config.Theme.Bg
     menuGui.SetFont("s" Config.Font.Size " c" Config.Theme.Text, Config.Font.Name)
@@ -1605,55 +1296,35 @@ RadialMenu() {
     ApplyRoundedCorners(menuGui.Hwnd, Config.Shape.CornerRadius)
     EnableAcrylic(menuGui.Hwnd, Config.Theme.Bg, Config.Theme.AcrylicAlpha)
 
-    ; fade-in (menu + sombra)
     WinSetTransparent(1, menuGui.Hwnd)
     WinSetTransparent(1, shadow.Hwnd)
     FadeTo(shadow.Hwnd, 1, Config.Theme.ShadowAlpha, Config.Anim.FadeInMs, Config.Anim.Steps)
     FadeTo(menuGui.Hwnd, 1, Config.Alpha, Config.Anim.FadeInMs, Config.Anim.Steps)
 
-    ; Setores (labels) - posicionados em arco
-    topCtrl    := AddSector("${mainMenu.sectors.top.label || 'CIMA'}",  Config.Radius-47, 8,                 menuGui)
-    leftCtrl   := AddSector("${mainMenu.sectors.left.label || 'ESQ'}",   8,                 Config.Radius-16, menuGui)
-    rightCtrl  := AddSector("${mainMenu.sectors.right.label || 'DIR'}",   size-102,          Config.Radius-16, menuGui)
-    bottomCtrl := AddSector("${mainMenu.sectors.bottom.label || 'BAIXO'}",        Config.Radius-47,  size-40,          menuGui)
+    ; Setores
+${ctrlDecls}
 
-    ; Texto central (feedback)
-    info := menuGui.Add("Text"
-        , "x" (Config.Radius-75) " y" (Config.Radius-12) " w150 Center c" Config.Theme.Hint
-        , "Escolha uma ação")
-
-    ; Indicador de direção (seta rotacionando por steps de 45°)
-    aim := menuGui.Add("Text", "x" (Config.Radius-10) " y" (Config.Radius-12) " w20 h20 Center c" Config.Theme.Aim, "●")
+    ; Centro
+    info := menuGui.Add("Text", "x" (Config.Radius-75) " y" (Config.Radius-12) " w150 Center c" Config.Theme.Hint, "● Escolha")
+    aim := menuGui.Add("Text", "x" (Config.Radius-10) " y" (Config.Radius-10) " w20 h20 Center c" Config.Theme.Aim, "●")
     aim.SetFont("s14 Bold", "Segoe UI Symbol")
-    rAim := Config.Radius - 22
+    rAim := Config.Radius - 24
 
-    ; Inicializações
-    action  := ""
-    lastSel := ""
-    theta   := 0
-    dx := 0, dy := 0
-    ${holdTimerInits}
+    action := "", lastSel := "", theta := 0
+    ${holdInits}
 
-    ; Loop enquanto segura ${c.trigger}
     while GetKeyState("${c.trigger}", "P") {
         Sleep 10
         MouseGetPos(&mx, &my)
         dx := mx - cx
-        dy := my - cy
-
-        ; --- eixo Y corrigido
-        dy := -dy
-
+        dy := -(my - cy)
         dist := Sqrt(dx*dx + dy*dy)
 
         if (dist < Config.Deadzone) {
-            info.Text := "Escolha uma ação"
-            lastSel := HighlightSector("", [topCtrl, rightCtrl, bottomCtrl, leftCtrl], lastSel)
+            info.Text := "● Escolha"
+            lastSel := HighlightSector("", [${ctrlList}], lastSel)
             UpdateArrow(aim, 0, Config.Radius, Config.Radius, 0, false)
-            ${submenuSectors.map(dir => {
-        const dirMap = { top: 'Top', right: 'Right', bottom: 'Bottom', left: 'Left' };
-        return `holdTime${dirMap[dir]} := 0`;
-    }).join('\n            ')}
+            ${holdReset}
             action := ""
             continue
         }
@@ -1661,87 +1332,53 @@ RadialMenu() {
         theta := GetAngle(dx, dy)
         UpdateArrow(aim, theta, Config.Radius, Config.Radius, rAim, true)
 
-        ; Direções
-        if (theta >= 45 && theta < 135) {             ; CIMA
-            action := "Top"
-            info.Text := "${mainMenu.sectors.top.label || 'Cima'}"
-            lastSel := HighlightSector("Top", [topCtrl, rightCtrl, bottomCtrl, leftCtrl], lastSel)
-        } else if (theta >= 135 && theta < 225) {     ; ESQUERDA
-            action := "Left"
-            info.Text := "${mainMenu.sectors.left.label || 'Esquerda'}"
-            lastSel := HighlightSector("Left", [topCtrl, rightCtrl, bottomCtrl, leftCtrl], lastSel)
-        } else if (theta >= 225 && theta < 315) {     ; BAIXO
-            action := "Bottom"
-            info.Text := "${mainMenu.sectors.bottom.label || 'Baixo'}"
-            lastSel := HighlightSector("Bottom", [topCtrl, rightCtrl, bottomCtrl, leftCtrl], lastSel)
-        } else {                                      ; DIREITA
-            action := "Right"
-            info.Text := "${mainMenu.sectors.right.label || 'Direita'}"
-            lastSel := HighlightSector("Right", [topCtrl, rightCtrl, bottomCtrl, leftCtrl], lastSel)
-        }
+${dirDetect}
 ${holdChecks}
     }
 
-    ; soltei o botão → fade out e fecha
     FadeTo(menuGui.Hwnd, Config.Alpha, 1, Config.Anim.FadeOutMs, Config.Anim.Steps)
-    FadeTo(shadow.Hwnd,  Config.Theme.ShadowAlpha, 1, Config.Anim.FadeOutMs, Config.Anim.Steps)
+    FadeTo(shadow.Hwnd, Config.Theme.ShadowAlpha, 1, Config.Anim.FadeOutMs, Config.Anim.Steps)
     try menuGui.Destroy()
     try shadow.Gui.Destroy()
 
-    ; Execução da ação escolhida
-    if (action = "" || action = "Cancel")
+    if (action = "")
         return
 
-    if (action = "Top") {
-        ${getAction(mainMenu.sectors.top)}
-    } else if (action = "Left") {
-        ${getAction(mainMenu.sectors.left)}
-    } else if (action = "Right") {
-        ${getAction(mainMenu.sectors.right)}
-    } else if (action = "Bottom") {
-        ${getAction(mainMenu.sectors.bottom)}
-    }
+    ${actionExec}
 }
 
 ${submenuFunctions}
 
-; =========================
-; Helpers visuais
-; =========================
-AddSector(text, x, y, hostGui) {
+; =====================================
+; Funções Visuais
+; =====================================
+AddSector(text, x, y, id, hostGui) {
     global Config
-    ctrl := hostGui.Add(
-        "Text"
-      , "x" x " y" y " w94 h32 Center Background" Config.Theme.Item " c" Config.Theme.Text " +0x1000"
-      , text
-    )
+    ctrl := hostGui.Add("Text"
+        , "x" x " y" y " w90 h28 Center Background" Config.Theme.Item " c" Config.Theme.Text " +0x1000"
+        , text)
     ctrl.SetFont("s9 Bold", Config.Font.Name)
-    ctrl.__ox := x, ctrl.__oy := y, ctrl.__ow := 94, ctrl.__oh := 32
-    ; Aplica cantos arredondados ao setor
-    SetRoundRegion(ctrl.Hwnd, 10)
+    ctrl.__ox := x, ctrl.__oy := y, ctrl.__ow := 90, ctrl.__oh := 28
+    ctrl.__id := id
+    SetRoundRegion(ctrl.Hwnd, 8)
     return ctrl
 }
 
 HighlightSector(which, ctrlList, lastSel) {
     global Config
-    order := Map("Top", 1, "Right", 2, "Bottom", 3, "Left", 4)
+    order := Map(${orderMap})
 
-    ; Reseta TODOS os setores para cor de fundo normal
-    Loop 4 {
-        c := ctrlList[A_Index]
-        try c.Opt("Background" . Config.Theme.Item)
-        try c.Move(c.__ox, c.__oy, c.__ow, c.__oh)
-        try SetRoundRegion(c.Hwnd, 10)
+    for ctrl in ctrlList {
+        try ctrl.Opt("Background" . Config.Theme.Item)
+        try ctrl.Move(ctrl.__ox, ctrl.__oy, ctrl.__ow, ctrl.__oh)
+        try SetRoundRegion(ctrl.Hwnd, 8)
     }
 
-    ; Se nenhum setor selecionado, retorna vazio
     if (!which || !order.Has(which))
         return ""
 
-    ; Aplica destaque apenas no setor atual (se UseHighlight estiver ativo)
     idx := order[which]
     c := ctrlList[idx]
-
     if (Config.UseHighlight) {
         try c.Opt("Background" . Config.Theme.ItemActive)
         scale := Config.Anim.ScaleActive
@@ -1750,9 +1387,8 @@ HighlightSector(which, ctrlList, lastSel) {
         nx := c.__ox - Round((nw - c.__ow) / 2)
         ny := c.__oy - Round((nh - c.__oh) / 2)
         try c.Move(nx, ny, nw, nh)
-        try SetRoundRegion(c.Hwnd, 12)
+        try SetRoundRegion(c.Hwnd, 10)
     }
-
     return which
 }
 
@@ -1760,9 +1396,7 @@ UpdateArrow(arrowCtrl, theta, cx, cy, r, active := true) {
     global Config
     idx := Mod(Round(theta / 45), 8)
     glyphs := ["→","↗","↑","↖","←","↙","↓","↘"]
-    g := glyphs[idx+1]
-    try arrowCtrl.Text := g
-
+    try arrowCtrl.Text := glyphs[idx+1]
     if (active) {
         try arrowCtrl.Opt("c" . Config.Theme.AimActive)
         rad := DegToRad(theta)
@@ -1775,73 +1409,54 @@ UpdateArrow(arrowCtrl, theta, cx, cy, r, active := true) {
     }
 }
 
-; =========================
-; Sombra & cantos arredondados & Acrylic
-; =========================
+; =====================================
+; Sombra & Cantos & Acrylic
+; =====================================
 CreateShadowGui(x, y, w, h) {
     global Config
     s := Gui("+AlwaysOnTop -Caption +ToolWindow +E0x20")
     s.BackColor := Config.Theme.Shadow
     off := Config.Shape.ShadowOffset
     exp := Config.Shape.ShadowExpand
-    sx := x - Floor(exp/2) + off
-    sy := y - Floor(exp/2) + off
-    sw := w + exp
-    sh := h + exp
-    s.Show("x" sx " y" sy " w" sw " h" sh " NA")
+    s.Show("x" (x - Floor(exp/2) + off) " y" (y - Floor(exp/2) + off) " w" (w + exp) " h" (h + exp) " NA")
     ApplyRoundedCorners(s.Hwnd, Config.Shape.CornerRadius + 6)
     return { Gui: s, Hwnd: s.Hwnd }
 }
 
 ApplyRoundedCorners(hwnd, radius := 12) {
-    try {
-        pref := 2
-        DllCall("dwmapi\\DwmSetWindowAttribute", "ptr", hwnd, "int", 33, "int*", pref, "int", 4)
-    }
+    try DllCall("dwmapi\\DwmSetWindowAttribute", "ptr", hwnd, "int", 33, "int*", 2, "int", 4)
     SetRoundRegion(hwnd, radius)
 }
 
 SetRoundRegion(hwnd, radius) {
     WinGetPos(&wx, &wy, &ww, &wh, "ahk_id " hwnd)
-    rr := DllCall("gdi32\\CreateRoundRectRgn"
-        , "int", 0, "int", 0, "int", ww, "int", wh
-        , "int", radius*2, "int", radius*2
-        , "ptr")
+    rr := DllCall("gdi32\\CreateRoundRectRgn", "int", 0, "int", 0, "int", ww, "int", wh, "int", radius*2, "int", radius*2, "ptr")
     DllCall("user32\\SetWindowRgn", "ptr", hwnd, "ptr", rr, "int", true)
 }
 
-EnableAcrylic(hwnd, hexBg := "1E1E1E", alpha := 220) {
+EnableAcrylic(hwnd, hexBg := "1A1A2E", alpha := 210) {
     accentSize := 16
     policy := Buffer(accentSize, 0)
-    state := 4
-    flags := 0
     grad := ARGBFromHex(hexBg, alpha)
-
-    NumPut("Int", state, policy, 0)
-    NumPut("Int", flags, policy, 4)
-    NumPut("Int", grad,  policy, 8)
-    NumPut("Int", 0,     policy, 12)
-
+    NumPut("Int", 4, policy, 0)
+    NumPut("Int", 0, policy, 4)
+    NumPut("Int", grad, policy, 8)
+    NumPut("Int", 0, policy, 12)
     data := Buffer(24, 0)
-    NumPut("Int", 19,            data, 0)
-    NumPut("Ptr", policy.Ptr,    data, 8)
-    NumPut("Int", accentSize,    data, 16)
-
+    NumPut("Int", 19, data, 0)
+    NumPut("Ptr", policy.Ptr, data, 8)
+    NumPut("Int", accentSize, data, 16)
     ok := 0
     try ok := DllCall("user32\\SetWindowCompositionAttribute", "ptr", hwnd, "ptr", data, "int")
     if (!ok) {
         NumPut("Int", 3, policy, 0)
-        NumPut("Int", 0, policy, 4)
-        NumPut("Int", grad, policy, 8)
         try DllCall("user32\\SetWindowCompositionAttribute", "ptr", hwnd, "ptr", data, "int")
     }
 }
 
-ARGBFromHex(hex, alpha := 220) {
-    if (SubStr(hex, 1, 1) = "#")
-        hex := SubStr(hex, 2)
-    if (StrLen(hex) != 6)
-        hex := "1E1E1E"
+ARGBFromHex(hex, alpha := 210) {
+    if (SubStr(hex, 1, 1) = "#") hex := SubStr(hex, 2)
+    if (StrLen(hex) != 6) hex := "1A1A2E"
     r := "0x" . SubStr(hex, 1, 2)
     g := "0x" . SubStr(hex, 3, 2)
     b := "0x" . SubStr(hex, 5, 2)
@@ -1849,61 +1464,25 @@ ARGBFromHex(hex, alpha := 220) {
     return (a << 24) | (Integer(r) << 16) | (Integer(g) << 8) | Integer(b)
 }
 
-; =========================
-; Snap preciso por monitor
-; =========================
-SnapByMove(side, px, py) {
-    mon := GetMonitorAtPoint(px, py)
-    if !mon {
-        Send "#{Left}"
-        return
-    }
-    L := mon.L, T := mon.T, R := mon.R, B := mon.B
-    W := R - L, H := B - T
-
-    if (side = "Left")
-        WinMove(L, T, Floor(W/2), H, "A")
-    else if (side = "Right")
-        WinMove(L + Floor(W/2), T, Floor(W/2), H, "A")
-}
-
-GetMonitorAtPoint(x, y) {
-    try {
-        cnt := MonitorGetCount()
-        Loop cnt {
-            i := A_Index
-            MonitorGet(i, &L, &T, &R, &B)
-            if (x >= L && x < R && y >= T && y < B) {
-                MonitorGetWorkArea(i, &wL, &wT, &wR, &wB)
-                return { L: wL, T: wT, R: wR, B: wB }
-            }
-        }
-    }
-    MonitorGetWorkArea(1, &wL, &wT, &wR, &wB)
-    return { L: wL, T: wT, R: wR, B: wB }
-}
-
-; =========================
-; Animações
-; =========================
+; =====================================
+; Animação
+; =====================================
 FadeTo(hwnd, fromAlpha, toAlpha, durationMs := 120, steps := 12) {
-    if (steps < 1)
-        steps := 1
+    if (steps < 1) steps := 1
     stepTime := Max(10, Round(durationMs / steps))
     diff := toAlpha - fromAlpha
     Loop steps {
         t := A_Index / steps
         eased := 1 - (1 - t) * (1 - t)
-        a := Round(fromAlpha + diff * eased)
-        WinSetTransparent(a, "ahk_id " hwnd)
+        WinSetTransparent(Round(fromAlpha + diff * eased), "ahk_id " hwnd)
         Sleep stepTime
     }
     WinSetTransparent(toAlpha, "ahk_id " hwnd)
 }
 
-; =========================
+; =====================================
 ; Matemática
-; =========================
+; =====================================
 GetAngle(dx, dy) {
     return Mod(ATan2(dy, dx) * 180 / 3.1415926535 + 360, 360)
 }
@@ -1914,28 +1493,78 @@ ATan2(y, x) {
     return DllCall("msvcrt\\atan2", "Double", y, "Double", x, "Cdecl Double")
 }
 `;
+}
 
-    return code;
+function buildDetectionBlock(dirs, menuObj) {
+    const ctrlListStr = dirs.map(d => `${d.id}Ctrl`).join(', ');
+    const wrapsDir = dirs.find(d => d.wraps);
+    const normalDirs = dirs.filter(d => !d.wraps);
+    let out = '';
+
+    normalDirs.forEach((dir, i) => {
+        const sector = menuObj.sectors[dir.id];
+        const sLabel = (sector && sector.label) ? sector.label : dir.label;
+        if (!wrapsDir && i === normalDirs.length - 1) {
+            out += `        } else {                                     ; ${dir.label}\n`;
+        } else {
+            const prefix = i === 0 ? '        if' : '        } else if';
+            out += `${prefix} (theta >= ${dir.minA} && theta < ${dir.maxA}) {   ; ${dir.label}\n`;
+        }
+        out += `            action := "${dir.ahkId}"\n`;
+        out += `            info.Text := "${sLabel}"\n`;
+        out += `            lastSel := HighlightSector("${dir.ahkId}", [${ctrlListStr}], lastSel)\n`;
+    });
+
+    if (wrapsDir) {
+        const sector = menuObj.sectors[wrapsDir.id];
+        const sLabel = (sector && sector.label) ? sector.label : wrapsDir.label;
+        out += `        } else if (theta >= ${wrapsDir.minA} || theta < ${wrapsDir.maxA}) { ; ${wrapsDir.label}\n`;
+        out += `            action := "${wrapsDir.ahkId}"\n`;
+        out += `            info.Text := "${sLabel}"\n`;
+        out += `            lastSel := HighlightSector("${wrapsDir.ahkId}", [${ctrlListStr}], lastSel)\n`;
+        out += `        } else {\n`;
+        out += `            action := ""\n`;
+        out += `            lastSel := HighlightSector("", [${ctrlListStr}], lastSel)\n`;
+    }
+
+    return out + '        }';
 }
 
 function generateSubmenuFunction(menuId) {
     const menu = menus[menuId];
+    const dirs = getDirections(menu.sectorCount);
+    const positions = sectorPositions(menu.sectorCount, config.radius);
     const funcName = 'Show' + menuId.charAt(0).toUpperCase() + menuId.slice(1) + 'Menu';
-    const c = config;
+    const ctrlList = dirs.map(d => `${d.id}Ctrl`).join(', ');
+    const orderMap = dirs.map((d, i) => `"${d.ahkId}", ${i + 1}`).join(', ');
 
     const getAction = (sector) => {
-        if (!sector.action) return `; Nenhuma ação configurada`;
+        if (!sector || !sector.action) return `; Nenhuma ação`;
         if (sector.actionType === 'submenu') {
-            const submenuId = sector.action.replace('submenu:', '');
-            const subFuncName = 'Show' + submenuId.charAt(0).toUpperCase() + submenuId.slice(1) + 'Menu';
-            return `${subFuncName}(cx, cy)`;
+            const sid = sector.action.replace('submenu:', '');
+            return `Show${sid.charAt(0).toUpperCase() + sid.slice(1)}Menu(cx, cy)`;
         }
         return sector.action;
     };
 
-    return `; =========================
+    const ctrlDecls = positions.map(p => {
+        const sector = menu.sectors[p.dir.id];
+        const arrow = DIR_ARROWS[p.dir.id] || '';
+        const lbl = (sector && sector.label) ? sector.label : p.dir.label;
+        return `    ${p.dir.id}Ctrl := AddSector("${arrow} ${lbl}", ${p.sx}, ${p.sy}, "${p.dir.ahkId}", g)`;
+    }).join('\n');
+
+    const dirDetect = buildDetectionBlock(dirs, menu);
+
+    const actionExec = dirs.map((dir, i) => {
+        const sector = menu.sectors[dir.id];
+        const kw = i === 0 ? 'if' : 'else if';
+        return `    ${kw} (action = "${dir.ahkId}") {\n        ${getAction(sector)}\n    }`;
+    }).join(' ');
+
+    return `; =====================================
 ; ${menu.name} (submenu)
-; =========================
+; =====================================
 ${funcName}(cx, cy) {
     global Config
 
@@ -1958,56 +1587,34 @@ ${funcName}(cx, cy) {
     FadeTo(shadow.Hwnd, 1, Config.Theme.ShadowAlpha, Config.Anim.FadeInMs, Config.Anim.Steps)
     FadeTo(g.Hwnd, 1, Config.Alpha, Config.Anim.FadeInMs, Config.Anim.Steps)
 
-    cTop    := AddSector("${menu.sectors.top.label || 'CIMA'}",       Config.Radius-47, 8,               g)
-    cLeft   := AddSector("${menu.sectors.left.label || 'ESQ'}",  8,               Config.Radius-16, g)
-    cRight  := AddSector("${menu.sectors.right.label || 'DIR'}", size-102,        Config.Radius-16, g)
-    cBottom := AddSector("${menu.sectors.bottom.label || 'BAIXO'}",  Config.Radius-47, size-40,         g)
+${ctrlDecls}
 
-    ; Texto central (feedback)
-    info := g.Add("Text"
-        , "x" (Config.Radius-75) " y" (Config.Radius-12) " w150 Center c" Config.Theme.Hint
-        , "${menu.name}")
-
-    aim := g.Add("Text", "x" (Config.Radius-10) " y" (Config.Radius-12) " w20 h20 Center c" Config.Theme.Aim, "●")
+    info := g.Add("Text", "x" (Config.Radius-75) " y" (Config.Radius-12) " w150 Center c" Config.Theme.Hint, "${menu.name}")
+    aim := g.Add("Text", "x" (Config.Radius-10) " y" (Config.Radius-10) " w20 h20 Center c" Config.Theme.Aim, "●")
     aim.SetFont("s14 Bold", "Segoe UI Symbol")
-    rAim := Config.Radius - 22
+    rAim := Config.Radius - 24
 
-    sel := ""
-    thetaD := 0
-    dx := 0, dy := 0
+    action := "", lastSel := "", theta := 0
 
-    ; Loop enquanto segura o botão
-    while GetKeyState("${c.trigger}", "P") {
+    while GetKeyState("${config.trigger}", "P") {
         Sleep 10
         MouseGetPos(&mx, &my)
         dx := mx - cx
-        dy := my - cy
-        dy := -dy
-
+        dy := -(my - cy)
         dist := Sqrt(dx*dx + dy*dy)
+
         if (dist < Config.Deadzone) {
             info.Text := "${menu.name}"
-            sel := HighlightSector("", [cTop, cRight, cBottom, cLeft], sel)
+            lastSel := HighlightSector("", [${ctrlList}], lastSel)
             UpdateArrow(aim, 0, Config.Radius, Config.Radius, 0, false)
+            action := ""
             continue
         }
 
-        thetaD := GetAngle(dx, dy)
-        UpdateArrow(aim, thetaD, Config.Radius, Config.Radius, rAim, true)
+        theta := GetAngle(dx, dy)
+        UpdateArrow(aim, theta, Config.Radius, Config.Radius, rAim, true)
 
-        if (thetaD >= 45 && thetaD < 135) {
-            sel := HighlightSector("Top", [cTop, cRight, cBottom, cLeft], sel)
-            info.Text := "${menu.sectors.top.label || 'Cima'}"
-        } else if (thetaD >= 135 && thetaD < 225) {
-            sel := HighlightSector("Left", [cTop, cRight, cBottom, cLeft], sel)
-            info.Text := "${menu.sectors.left.label || 'Esquerda'}"
-        } else if (thetaD >= 225 && thetaD < 315) {
-            sel := HighlightSector("Bottom", [cTop, cRight, cBottom, cLeft], sel)
-            info.Text := "${menu.sectors.bottom.label || 'Baixo'}"
-        } else {
-            sel := HighlightSector("Right", [cTop, cRight, cBottom, cLeft], sel)
-            info.Text := "${menu.sectors.right.label || 'Direita'}"
-        }
+${dirDetect}
     }
 
     FadeTo(g.Hwnd, Config.Alpha, 1, Config.Anim.FadeOutMs, Config.Anim.Steps)
@@ -2015,39 +1622,53 @@ ${funcName}(cx, cy) {
     try g.Destroy()
     try shadow.Gui.Destroy()
 
-    if (sel = "Top") {
-        ${getAction(menu.sectors.top)}
-    } else if (sel = "Right") {
-        ${getAction(menu.sectors.right)}
-    } else if (sel = "Bottom") {
-        ${getAction(menu.sectors.bottom)}
-    } else if (sel = "Left") {
-        ${getAction(menu.sectors.left)}
+    if (action = "")
+        return
+
+    ${actionExec}
+
+    ; HighlightSector local order
+    HighlightSector(which, ctrlList, lastSel) {
+        global Config
+        order := Map(${orderMap})
+        for ctrl in ctrlList {
+            try ctrl.Opt("Background" . Config.Theme.Item)
+            try ctrl.Move(ctrl.__ox, ctrl.__oy, ctrl.__ow, ctrl.__oh)
+            try SetRoundRegion(ctrl.Hwnd, 8)
+        }
+        if (!which || !order.Has(which))
+            return ""
+        idx := order[which]
+        c := ctrlList[idx]
+        if (Config.UseHighlight) {
+            try c.Opt("Background" . Config.Theme.ItemActive)
+            scale := Config.Anim.ScaleActive
+            nw := Round(c.__ow * scale)
+            nh := Round(c.__oh * scale)
+            try c.Move(c.__ox - Round((nw-c.__ow)/2), c.__oy - Round((nh-c.__oh)/2), nw, nh)
+            try SetRoundRegion(c.Hwnd, 10)
+        }
+        return which
     }
 }`;
 }
 
 function updateCodePreview() {
     const code = generateAHKCode();
-    // Simple syntax highlighting
     let highlighted = code
         .replace(/;(.*)$/gm, '<span class="comment">;$1</span>')
-        .replace(/\b(global|if|else|while|Loop|try|return|Send|Gui|Sleep)\b/g, '<span class="keyword">$1</span>')
+        .replace(/\b(global|if|else|while|Loop|try|return|Send|Gui|Sleep|Run)\b/g, '<span class="keyword">$1</span>')
         .replace(/"([^"]*)"/g, '<span class="string">"$1"</span>')
         .replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>')
         .replace(/(\w+)\(/g, '<span class="function">$1</span>(');
-
     elements.codePreview.innerHTML = highlighted;
 }
 
 elements.copyCodeBtn.addEventListener('click', async () => {
-    const code = generateAHKCode();
     try {
-        await navigator.clipboard.writeText(code);
+        await navigator.clipboard.writeText(generateAHKCode());
         showToast('Código copiado!');
-    } catch (err) {
-        showToast('Erro ao copiar', 'error');
-    }
+    } catch { showToast('Erro ao copiar', 'error'); }
 });
 
 elements.generateBtn.addEventListener('click', () => {
@@ -2055,13 +1676,10 @@ elements.generateBtn.addEventListener('click', () => {
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'radial-menu.ahk';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Script gerado com sucesso!');
+    a.href = url; a.download = 'radial-menu.ahk';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('Script gerado!');
 });
 
 // =============================================
@@ -2069,7 +1687,8 @@ elements.generateBtn.addEventListener('click', () => {
 // =============================================
 function init() {
     initTheme();
-    updateSectorDisplay();
+    syncSectorCountBtns();
+    renderRadialPreview();
     updateSubmenuList();
     updateCodePreview();
     updateVisualPreview();
